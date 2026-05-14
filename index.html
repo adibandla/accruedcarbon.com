@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accrued Carbon</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:ital,wght@0,300;0,400;0,500;1,400&family=EB+Garamond:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --text: #1b1e23;
+  --muted: #808080;
+  --border: #e0e0e0;
+  --sans: 'Inter', -apple-system, sans-serif;
+  --serif: 'EB Garamond', Georgia, serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+[data-theme="dark"] {
+  --bg: #1b1e23;
+  --text: #ebebec;
+  --muted: #808080;
+  --border: #393a3d;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg); color: var(--text); font-family: var(--sans); transition: background 0.2s, color 0.2s; }
+body { min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+.page { width: 100%; max-width: 1080px; display: flex; flex-direction: column; min-height: 100vh; }
+a { color: inherit; text-decoration: none; }
+
+nav { display: flex; justify-content: space-between; align-items: center; height: 64px; padding: 0 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 100; }
+.nav-logo { display: flex; flex-direction: column; gap: 4px; }
+.nav-logo a { font-family: var(--serif); font-size: 18px; font-weight: 400; color: var(--text); line-height: 1; white-space: nowrap; }
+.nav-tagline { font-family: var(--sans); font-size: 11px; font-style: italic; font-weight: 300; color: var(--muted); white-space: nowrap; }
+.nav-links { display: flex; align-items: center; margin-left: auto; margin-right: 0; }
+.nav-link { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--muted); text-decoration: none; padding: 4px 14px; border-right: 1px solid var(--border); line-height: 1; transition: color 0.15s; }
+.nav-link:first-child { border-left: 1px solid var(--border); }
+.nav-link:hover { color: var(--text); }
+.nav-link.active { color: var(--text); }
+.nav-theme-btn { background: none; border: none; color: var(--muted); font-size: 11px; font-family: var(--mono); padding: 4px 0; cursor: pointer; margin-left: 16px; transition: color 0.15s; }
+.nav-theme-btn:hover { color: var(--text); }
+
+
+.hero { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 64px 24px 48px; gap: 40px; border-bottom: 1px solid var(--border); }
+.hero-text { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+
+
+
+
+
+
+
+
+
+.hero-svg-col { display: flex; align-items: center; justify-content: center; }
+.hero-bg-svg { width: 260px; opacity: 0.85; }
+.hero-h1 { font-family: var(--sans); font-size: clamp(28px, 4vw, 56px); font-weight: 400; line-height: 1.08; letter-spacing: -0.03em; margin-bottom: 28px; color: var(--text); }
+.hero-sub { font-size: 15px; font-weight: 300; color: var(--muted); line-height: 1.8; max-width: 48ch; margin-bottom: 32px; }
+
+@keyframes arrowBob { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(7px); } }
+.hero-nav { display: flex; gap: 24px; list-style: none; margin-bottom: 0; flex-wrap: wrap; }
+.hero-nav a { font-size: 12px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text); border-bottom: 2px solid var(--text); padding-bottom: 2px; transition: opacity 0.15s; }
+.hero-nav a:hover { opacity: 0.4; }
+
+.scroll-arrow { display: flex; flex-direction: column; align-items: center; margin-bottom: 52px; }
+.scroll-circle { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--text); }
+.scroll-line { width: 1px; height: 40px; background: var(--text); }
+.scroll-chevron { width: 9px; height: 9px; border-right: 1.5px solid var(--text); border-bottom: 1.5px solid var(--text); transform: rotate(45deg); margin-top: -5px; }
+
+.divider { height: 1px; background: var(--border); margin: 0 24px; }
+
+.highlights { padding: 0 24px; }
+.highlight-item { display: grid; grid-template-columns: 1fr auto; gap: 40px; padding: 48px 0; border-bottom: 1px solid var(--border); align-items: start; }
+.hl-title { font-size: clamp(24px, 3vw, 38px); font-weight: 400; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 14px; display: flex; align-items: baseline; gap: 10px; color: var(--text); }
+.hl-arrow { font-size: 0.75em; font-weight: 400; }
+.hl-desc { font-size: 14px; font-weight: 300; color: var(--muted); line-height: 1.7; max-width: 52ch; }
+.hl-tag { display: inline-block; margin-top: 14px; font-size: 10px; font-weight: 400; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--border); padding: 2px 7px; }
+.hl-date { font-size: 11px; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; padding-top: 8px; }
+
+.bottom-section { padding: 36px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.bottom-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; color: var(--text); }
+.bottom-link { font-size: 14px; font-weight: 400; color: var(--text); display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--border); padding: 9px 0; transition: opacity 0.15s; }
+.bottom-link:last-child { border-bottom: none; }
+.bottom-link:hover { opacity: 0.4; }
+
+footer { padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); margin-top: auto; }
+.footer-text { font-size: 11px; color: var(--muted); display: flex; gap: 14px; align-items: center; }
+.footer-right { display: flex; align-items: center; gap: 16px; }
+.footer-coords { font-size: 10px; color: var(--muted); letter-spacing: 0.04em; writing-mode: vertical-rl; transform: rotate(180deg); }
+.theme-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 10px; font-family: var(--sans); letter-spacing: 0.07em; text-transform: uppercase; padding: 4px 10px; cursor: pointer; transition: color 0.15s, border-color 0.15s; }
+.theme-btn:hover { color: var(--text); border-color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <nav>
+    <div class="nav-logo">
+      <a href="index.html">[accrued] carbon</a>
+      <span class="nav-tagline">Don't let your soil carbon gains turn into a liability.</span>
+    </div>
+    <div class="nav-links">
+      <a href="#" class="nav-link">About</a>
+      <a href="#" class="nav-link">Work</a>
+      <a href="soc-permanence-tool.html" class="nav-link">Tools</a>
+      <a href="#" class="nav-link">Writing</a>
+    </div>
+    <button class="nav-theme-btn" onclick="toggleTheme()" id="themeNavBtn">Light</button>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-text">
+      <h1 class="hero-h1">High-integrity soil carbon science and MRV.</h1>
+      <p class="hero-sub">Most MRV protocols and regenerative agriculture practices treat soil as a substrate, not as a system. That's where the risk is.</p>
+      <ul class="hero-nav">
+        <li><a href="#">About</a></li>
+        <li><a href="#">Work</a></li>
+        <li><a href="#">Tools</a></li>
+        <li><a href="#">Writing</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="hero-svg-col">
+      <svg viewBox="0 0 160 320" class="hero-bg-svg" xmlns="http://www.w3.org/2000/svg">
+        <path id="hg-upper" fill="none" stroke="#1b1e23" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M44 16 Q16 16 16 46 Q16 122 80 166 Q144 122 144 46 Q144 16 116 16 Z"/>
+        <path id="hg-lower" fill="none" stroke="#D4A574" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M80 166 Q16 210 16 268 Q16 304 44 304 L116 304 Q144 304 144 268 Q144 210 80 166 Z"/>
+      </svg>
+    </div>
+  </div>
+
+
+  <div class="highlights">
+    <div class="highlight-item">
+      <div>
+        <a href="soc-permanence-tool.html" class="hl-title">Carbon Permanence Tool <span class="hl-arrow">↗</span></a>
+        <div class="hl-desc">A proof-of-concept tool exploring how pool-specific carbon dynamics affect the durability of SOC gains over time. Applies mean residence time frameworks to the POC/MAOC accrual split — illustrating how measurement assumptions shape permanence outcomes under the tonne-year approach.</div>
+        <span class="hl-tag">Tool · Proof of concept</span>
+      </div>
+      <div class="hl-date">May 2025</div>
+    </div>
+    <div class="highlight-item">
+      <div>
+        <a href="cue_soc_dashboard.html" class="hl-title">CUE × Soil Carbon Projects <span class="hl-arrow">↗</span></a>
+        <div class="hl-desc">Overlays stoichiometric microbial carbon use efficiency (CUE) predictions against global soil carbon registry projects. Maps project sites against the Rh threshold beyond which CUE saturates — identifying where microbial pathways are a credible driver of SOC gains versus where mineral stabilisation dominates.</div>
+        <span class="hl-tag">Tool · Proof of concept</span>
+      </div>
+      <div class="hl-date">May 2025</div>
+    </div>
+  </div>
+
+  <div class="bottom-section">
+    <div>
+      <div class="bottom-label">Work</div>
+      <a href="soc-permanence-tool.html" class="bottom-link">Carbon permanence assessment ↗</a>
+      <a href="cue_soc_dashboard.html" class="bottom-link">CUE × soil carbon projects ↗</a>
+      <a href="#" class="bottom-link">Microbiome-informed MRV ↗</a>
+      <a href="#" class="bottom-link">Protocol and methodology review ↗</a>
+    </div>
+    <div>
+      <div class="bottom-label">Contact</div>
+      <a href="mailto:hello@accruedcarbon.com" class="bottom-link">hello@accruedcarbon.com ↗</a>
+      <a href="https://www.linkedin.com/in/adibandla" class="bottom-link">LinkedIn ↗</a>
+      <a href="#" class="bottom-link">GitHub ↗</a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-text">
+      <span>© 2025 Accrued Carbon</span>
+      <a href="#" style="color:var(--muted)">Terms</a>
+      <span>/</span>
+      <a href="#" style="color:var(--muted)">Privacy</a>
+    </div>
+    <div class="footer-right">
+      <button class="theme-btn" onclick="toggleTheme()" id="themeLabel">Light</button>
+      <div class="footer-coords" id="coords">X,Y: 0000,0000</div>
+    </div>
+  </footer>
+</div>
+
+<script>
+function updateSvgColors() {
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var lineColor = dark ? '#ebebec' : '#1b1e23';
+  var upper = document.getElementById('hg-upper');
+  if (upper) upper.setAttribute('stroke', lineColor);
+}
+
+function toggleTheme() {
+  var html = document.documentElement;
+  var dark = html.getAttribute('data-theme') !== 'dark';
+  html.setAttribute('data-theme', dark ? 'dark' : 'light');
+  var navBtn = document.getElementById('themeNavBtn');
+  var footBtn = document.getElementById('themeLabel');
+  if (navBtn) navBtn.textContent = dark ? 'Light' : 'Dark';
+  if (footBtn) footBtn.textContent = dark ? 'Light' : 'Dark';
+  updateSvgColors();
+}
+
+var coordsEl = document.getElementById('coords');
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    function(p) {
+      var x = Math.abs(Math.round(p.coords.longitude * 10)).toString().padStart(4,'0');
+      var y = Math.abs(Math.round(p.coords.latitude * 10)).toString().padStart(4,'0');
+      coordsEl.textContent = 'X,Y: ' + x + ',' + y;
+    },
+    function() { coordsEl.textContent = 'X,Y: 7938,4365'; }
+  );
+} else {
+  coordsEl.textContent = 'X,Y: 7938,4365';
+}
+
+updateSvgColors();
+</script>
+</body>
+</html>

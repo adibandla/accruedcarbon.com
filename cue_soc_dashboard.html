@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CUE × Soil Carbon — Accrued Carbon</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:ital,wght@0,300;0,400;0,500;1,400&family=EB+Garamond:wght@400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #ffffff;
+  --text: #1b1e23;
+  --muted: #808080;
+  --border: #e0e0e0;
+  --sans: 'Inter', -apple-system, sans-serif;
+  --serif: 'EB Garamond', Georgia, serif;
+  --mono: 'IBM Plex Mono', monospace;
+  --green: #7eb36a;
+  --teal: #64b9c4;
+  --blue: #85a2f7;
+  --purple: #bc85d9;
+  --orange: #ea9755;
+  --red: #f07071;
+  --amber: #e5c07b;
+}
+[data-theme="dark"] {
+  --bg: #1b1e23;
+  --text: #ebebec;
+  --muted: #808080;
+  --border: #393a3d;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg); color: var(--text); font-family: var(--sans); transition: background 0.2s, color 0.2s; }
+body { min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+.page { width: 100%; max-width: 1080px; display: flex; flex-direction: column; min-height: 100vh; }
+a { color: inherit; text-decoration: none; }
+
+/* ── Nav ── */
+nav { display: flex; justify-content: space-between; align-items: center; height: 64px; padding: 0 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 100; }
+.nav-logo { display: flex; flex-direction: column; gap: 4px; }
+.nav-logo a { font-family: var(--serif); font-size: 18px; font-weight: 400; color: var(--text); line-height: 1; white-space: nowrap; }
+.nav-tagline { font-family: var(--sans); font-size: 11px; font-style: italic; font-weight: 300; color: var(--muted); white-space: nowrap; }
+.nav-links { display: flex; align-items: center; margin-left: auto; margin-right: 0; }
+.nav-link { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--muted); text-decoration: none; padding: 4px 14px; border-right: 1px solid var(--border); line-height: 1; transition: color 0.15s; }
+.nav-link:first-child { border-left: 1px solid var(--border); }
+.nav-link:hover { color: var(--text); }
+.nav-link.active { color: var(--text); }
+.nav-theme-btn { background: none; border: none; color: var(--muted); font-size: 11px; font-family: var(--mono); padding: 4px 0; cursor: pointer; margin-left: 16px; transition: color 0.15s; }
+.nav-theme-btn:hover { color: var(--text); }
+
+/* ── Main content ── */
+.dash-content { padding: 40px 24px 60px; }
+
+/* ── Header ── */
+.dash-header { display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: start; padding-bottom: 32px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+.dash-kicker { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.dash-h1 { font-size: clamp(22px, 3vw, 34px); font-weight: 400; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 12px; }
+.dash-sub { font-size: 14px; font-weight: 300; color: var(--muted); line-height: 1.75; max-width: 56ch; }
+.dash-meta { font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.9; text-align: right; padding-top: 4px; white-space: nowrap; }
+
+/* ── Stat cards ── */
+.stats { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--border); border-left: 1px solid var(--border); margin-bottom: 32px; }
+.stat-card { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 16px 18px; }
+.stat-label { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.stat-val { font-size: 26px; font-weight: 400; line-height: 1; }
+.stat-unit { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 5px; }
+
+/* ── Filters ── */
+.filters-wrap { margin-bottom: 32px; border: 1px solid var(--border); display: flex; flex-wrap: wrap; }
+.filter-group { display: flex; flex-wrap: wrap; align-items: center; }
+.filter-label { font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 8px 14px; border-right: 1px solid var(--border); white-space: nowrap; align-self: stretch; display: flex; align-items: center; }
+.filter-sep { width: 1px; background: var(--border); align-self: stretch; }
+.filter-btn {
+  padding: 7px 14px; font-size: 11px; font-family: var(--mono);
+  background: none; color: var(--muted); border: none;
+  border-right: 1px solid var(--border);
+  cursor: pointer; transition: color 0.15s; letter-spacing: .04em;
+  white-space: nowrap;
+}
+.filter-btn:hover { color: var(--text); }
+.filter-btn.active-green { color: var(--green); }
+.filter-btn.active-blue { color: var(--teal); }
+
+/* ── Chart grid ── */
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--border); margin-bottom: 32px; }
+@media (max-width: 800px) { .chart-grid { grid-template-columns: 1fr; } }
+.chart-panel { background: var(--bg); padding: 24px 20px 18px; }
+.chart-panel + .chart-panel { border-left: 1px solid var(--border); }
+.panel-title { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+.panel-title.green { color: var(--green); }
+.panel-title.blue { color: var(--teal); }
+.chart-wrap { position: relative; width: 100%; height: 320px; }
+.chart-legend { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 10px; line-height: 1.75; }
+
+/* ── Tooltip ── */
+#tooltip {
+  position: fixed; display: none; pointer-events: none; z-index: 9999;
+  background: var(--bg); border: 1px solid var(--border);
+  padding: 14px 18px; max-width: 280px;
+  font-family: var(--sans); font-size: 12px; color: var(--text); line-height: 1.6;
+}
+#tooltip .tt-name { font-weight: 500; color: var(--green); margin-bottom: 8px; font-size: 13px; }
+#tooltip .tt-row { color: var(--text); line-height: 1.75; }
+#tooltip .tt-row span { color: var(--muted); }
+#tooltip .tt-note { margin-top: 8px; color: var(--muted); font-style: italic; line-height: 1.6; font-size: 11px; font-family: var(--sans); }
+
+/* ── Biome bars ── */
+.biome-row { margin-bottom: 12px; }
+.biome-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.biome-name { font-family: var(--mono); font-size: 11px; }
+.biome-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.biome-bar-wrap { display: flex; align-items: center; gap: 10px; }
+.biome-bar-bg { flex: 1; background: var(--border); height: 5px; }
+.biome-bar-fill { height: 100%; transition: width 0.4s; }
+.biome-val { font-family: var(--mono); font-size: 11px; font-weight: 400; min-width: 36px; }
+.biome-legend { margin-top: 16px; display: flex; gap: 20px; border-top: 1px solid var(--border); padding-top: 12px; }
+.biome-legend-item { display: flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.dot { width: 6px; height: 6px; }
+
+/* ── Project table ── */
+.table-panel { border: 1px solid var(--border); overflow: hidden; margin-bottom: 32px; }
+.table-header { padding: 12px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.table-header-title { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.table-header-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: var(--sans); }
+th { padding: 10px 14px; text-align: left; font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 400; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody tr { transition: background 0.12s; }
+tbody tr:hover { background: rgba(126,179,106,0.06); }
+td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+tbody tr:last-child td { border-bottom: none; }
+
+/* ── Callout cards ── */
+.callouts { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 1px solid var(--border); border-right: none; border-bottom: none; margin-bottom: 32px; }
+@media (max-width: 700px) { .callouts { grid-template-columns: 1fr; } }
+.callout { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 22px 24px; }
+.callout-icon { font-size: 20px; margin-bottom: 10px; }
+.callout-title { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; font-weight: 400; margin-bottom: 10px; }
+.callout-body { font-size: 13px; font-weight: 300; color: var(--muted); line-height: 1.75; }
+
+/* ── Footer ── */
+footer { padding: 18px 24px; border-top: 1px solid var(--border); margin-top: auto; }
+.footer-text { font-family: var(--mono); font-size: 10px; color: var(--muted); line-height: 1.9; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <nav>
+    <div class="nav-logo">
+      <a href="index.html">[accrued] carbon</a>
+      <span class="nav-tagline">Don't let your soil carbon gains turn into a liability.</span>
+    </div>
+    <div class="nav-links">
+      <a href="#" class="nav-link">About</a>
+      <a href="#" class="nav-link">Work</a>
+      <a href="soc-permanence-tool.html" class="nav-link active">Tools</a>
+      <a href="#" class="nav-link">Writing</a>
+    </div>
+    <button class="nav-theme-btn" onclick="toggleTheme()" id="themeNavBtn">Light</button>
+  </nav>
+
+  <div class="dash-content">
+
+    <!-- ── HEADER ── -->
+    <div class="dash-header">
+      <div>
+        <div class="dash-kicker">Proof of Concept · Microbial Biogeochemistry × Carbon Markets</div>
+        <h1 class="dash-h1">CUE × Soil Carbon Projects</h1>
+        <p class="dash-sub">Overlaying stoichiometric microbial CUE predictions (Cui et al. 2026, <em>Sci. Adv.</em> adz5319) against global soil carbon registry projects. Dashed line = Rh threshold (340 gC m⁻² yr⁻¹) beyond which CUE stabilises at ~0.27.</p>
+      </div>
+      <div class="dash-meta">
+        Data: 1,094 obs. · Cui et al. 2026<br>
+        Projects: illustrative / representative<br>
+        CUE model: stoichiometric (CUE_ST)
+      </div>
+    </div>
+
+    <!-- ── STAT CARDS ── -->
+    <div class="stats" id="stats"></div>
+
+    <!-- ── FILTERS ── -->
+    <div class="filters-wrap" id="filters"></div>
+
+    <!-- ── CHARTS ── -->
+    <div class="chart-grid">
+      <div class="chart-panel">
+        <div class="panel-title green">CUE_ST vs. Heterotrophic Respiration (Rh)</div>
+        <div class="chart-wrap"><canvas id="scatterChart"></canvas></div>
+        <div class="chart-legend">
+          ● Model curve (CUE_ST) &nbsp;|&nbsp; ● Projects (size ∝ credits/yr; colour by practice)
+          &nbsp;|&nbsp; <span style="color:var(--orange)">— Rh threshold 340</span>
+          &nbsp;|&nbsp; <span style="color:var(--amber)">— CUE saturation 0.27</span>
+        </div>
+      </div>
+      <div class="chart-panel">
+        <div class="panel-title blue">Biome CUE Estimates (literature synthesis)</div>
+        <div id="biomeBars"></div>
+        <div class="biome-legend">
+          <div class="biome-legend-item"><div class="dot" style="background:var(--green)"></div>Low-productivity</div>
+          <div class="biome-legend-item"><div class="dot" style="background:var(--orange)"></div>High-productivity</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROJECT TABLE ── -->
+    <div class="table-panel">
+      <div class="table-header">
+        <div class="table-header-title">Project Registry</div>
+        <div class="table-header-meta" id="table-meta"></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Project</th><th>Country / Region</th><th>Biome</th><th>Practice</th>
+              <th>Rh est.</th><th>CUE pred.</th><th>Credits / yr</th><th>Registry</th><th>CUE Implication</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── CALLOUTS ── -->
+    <div class="callouts">
+      <div class="callout">
+        <div class="callout-icon" style="color:var(--green)">↑</div>
+        <div class="callout-title" style="color:var(--green)">High-CUE Opportunity Zone</div>
+        <div class="callout-body">Arid &amp; cold sites (Rh &lt; 340 gC m⁻² yr⁻¹) have elevated CUE (0.35–0.55). Adding organic inputs here produces proportionally more microbial biomass → SOC. Kenya, Saskatchewan drylands.</div>
+      </div>
+      <div class="callout">
+        <div class="callout-icon" style="color:var(--orange)">⚡</div>
+        <div class="callout-title" style="color:var(--orange)">Rh Threshold Effect</div>
+        <div class="callout-body">Beyond ~340 gC m⁻² yr⁻¹, CUE plateaus at ≈0.27 ± 0.11 regardless of Rh gains. Most temperate and tropical project sites fall here — sequestration depends on mineral stabilisation, not CUE.</div>
+      </div>
+      <div class="callout">
+        <div class="callout-icon" style="color:var(--amber)">⚠</div>
+        <div class="callout-title" style="color:var(--amber)">Market Implication</div>
+        <div class="callout-body">Productive-ecosystem projects (high Rh, saturated CUE) may over-attribute microbial pathways. Projects in arid/cold zones have stronger biological basis for SOC gains via CUE.</div>
+      </div>
+    </div>
+
+  </div><!-- end .dash-content -->
+
+  <footer>
+    <div class="footer-text">
+      Sources: Cui Y. et al. (2026) <em>Sci. Adv.</em> adz5319 · Tao F. et al. (2023) <em>Nature</em> 618:981 ·
+      Project data: VCS/Gold Standard/CAR/ERF registries, illustrative/representative values ·
+      CUE_ST = stoichiometric CUE; Rh = heterotrophic respiration · Dashboard for proof-of-concept only; not investment advice.
+    </div>
+  </footer>
+
+</div><!-- end .page -->
+
+<div id="tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div id="tt-body"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
+
+const BIOME_CUE = [
+  { biome:"Hot Desert",          Rh:60,  CUE:0.52, MAT:28, MAP:150,  regime:"Low-productivity" },
+  { biome:"Cold Tundra",         Rh:90,  CUE:0.49, MAT:-5, MAP:300,  regime:"Low-productivity" },
+  { biome:"Boreal Forest",       Rh:180, CUE:0.41, MAT:1,  MAP:500,  regime:"Low-productivity" },
+  { biome:"Mediterranean Shrub", Rh:250, CUE:0.35, MAT:16, MAP:600,  regime:"Low-productivity" },
+  { biome:"Temperate Grassland", Rh:310, CUE:0.30, MAT:10, MAP:700,  regime:"Low-productivity" },
+  { biome:"Temperate Deciduous", Rh:380, CUE:0.27, MAT:11, MAP:850,  regime:"High-productivity" },
+  { biome:"Temperate Rainforest",Rh:450, CUE:0.26, MAT:9,  MAP:1800, regime:"High-productivity" },
+  { biome:"Subtropical Savanna", Rh:520, CUE:0.28, MAT:22, MAP:1100, regime:"High-productivity" },
+  { biome:"Tropical Dry Forest", Rh:600, CUE:0.27, MAT:25, MAP:1200, regime:"High-productivity" },
+  { biome:"Tropical Rainforest", Rh:750, CUE:0.26, MAT:27, MAP:2500, regime:"High-productivity" },
+];
+
+const PROJECTS = [
+  { name:"Marin Carbon Project",               country:"USA",       region:"California",         biome:"Mediterranean Shrub", practice:"Compost application / Rangelands",    Rh_est:230, CUE_pred:0.37, credits_tCO2yr:3200,   registry:"CAR",          status:"Active",  note:"Pioneer rangeland SOC project; UC-verified" },
+  { name:"Saskatchewan Cropland (Yara/Rize)",  country:"Canada",    region:"Saskatchewan",       biome:"Temperate Grassland", practice:"No-till / Cover crops",               Rh_est:290, CUE_pred:0.32, credits_tCO2yr:45000,  registry:"Gold Standard",status:"Active",  note:"Boreal-fringe croplands; cold winters constrain Rh" },
+  { name:"Iowa Regenerative Ag (ESMC)",        country:"USA",       region:"Iowa",               biome:"Temperate Grassland", practice:"Cover crops / Reduced till",          Rh_est:320, CUE_pred:0.29, credits_tCO2yr:120000, registry:"VCS",          status:"Active",  note:"Near Rh threshold; potential for C stabilisation" },
+  { name:"Indigo Ag (US Midwest portfolio)",   country:"USA",       region:"Midwest",            biome:"Temperate Deciduous", practice:"No-till / Cover crops",               Rh_est:370, CUE_pred:0.27, credits_tCO2yr:250000, registry:"VCS",          status:"Active",  note:"Crosses Rh threshold — CUE stabilised; sequestration limited by microbial ceiling" },
+  { name:"Australia Savanna (NT)",             country:"Australia", region:"Northern Territory", biome:"Subtropical Savanna", practice:"Savanna burning management",          Rh_est:510, CUE_pred:0.28, credits_tCO2yr:800000, registry:"ERF",          status:"Active",  note:"High Rh; CUE saturated. SOC gains depend on mineral stabilisation, not CUE" },
+  { name:"Kenya Drylands (Verra/Pachama)",     country:"Kenya",     region:"Arid lowlands",      biome:"Hot Desert",          practice:"Agroforestry / Holistic grazing",     Rh_est:80,  CUE_pred:0.50, credits_tCO2yr:18000,  registry:"VCS",          status:"Pending", note:"High CUE arid zone — strong microbial retention capacity if C inputs increase" },
+  { name:"Argentina Pampas (Boomitra)",        country:"Argentina", region:"Buenos Aires prov.", biome:"Temperate Grassland", practice:"Grassland restoration / Silvopasture",Rh_est:300, CUE_pred:0.31, credits_tCO2yr:100000, registry:"Social Carbon",status:"Active",  note:"Pre-threshold; microbial C retention plausible" },
+  { name:"New Zealand Hill Country",           country:"NZ",        region:"North Island",       biome:"Temperate Rainforest",practice:"Reversion to native forest",          Rh_est:440, CUE_pred:0.27, credits_tCO2yr:60000,  registry:"VCS",          status:"Active",  note:"Post-threshold; high Rh from productive forest. Mineral protection drives SOC" },
+  { name:"Brazil Cerrado (TerraCarbon)",       country:"Brazil",    region:"Minas Gerais",       biome:"Tropical Dry Forest", practice:"Restoration / Avoided conversion",    Rh_est:590, CUE_pred:0.27, credits_tCO2yr:220000, registry:"VCS",          status:"Active",  note:"Saturated CUE zone — necromass accumulation key pathway" },
+  { name:"India Punjab Croplands (no-till)",   country:"India",     region:"Punjab",             biome:"Subtropical Savanna", practice:"Happy Seeder no-till",                Rh_est:480, CUE_pred:0.28, credits_tCO2yr:35000,  registry:"Gold Standard",status:"Active",  note:"Warm subhumid; CUE near saturation plateau" },
+];
+
+const PRACTICE_COLORS = {
+  "Compost application / Rangelands":    "#bc85d9",
+  "No-till / Cover crops":               "#64b9c4",
+  "Cover crops / Reduced till":          "#7eb36a",
+  "Savanna burning management":          "#ea9755",
+  "Agroforestry / Holistic grazing":     "#bc85d9",
+  "Grassland restoration / Silvopasture":"#7eb36a",
+  "Reversion to native forest":          "#64b9c4",
+  "Restoration / Avoided conversion":    "#e5c07b",
+  "Happy Seeder no-till":                "#85a2f7",
+};
+
+const REGIME_COLOR = { "Low-productivity":"#7eb36a", "High-productivity":"#ea9755" };
+
+function cueModel(Rh) {
+  if (Rh <= 340) return Math.max(0.27, 0.54 - 0.0008 * Rh);
+  return 0.27 + Math.exp(-(Rh - 340) / 120) * 0.015;
+}
+const MODEL_CURVE = Array.from({ length: 80 }, (_, i) => ({ x: i * 11, y: +cueModel(i * 11).toFixed(3) }));
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let selectedBiome = "All";
+let selectedRegistry = "All";
+let scatterChart = null;
+
+const allBiomes    = ["All", ...Array.from(new Set(PROJECTS.map(p => p.biome)))];
+const allRegistries= ["All", ...Array.from(new Set(PROJECTS.map(p => p.registry)))];
+
+function filtered() {
+  return PROJECTS.filter(p =>
+    (selectedBiome    === "All" || p.biome    === selectedBiome) &&
+    (selectedRegistry === "All" || p.registry === selectedRegistry)
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════════
+function toggleTheme() {
+  var html = document.documentElement;
+  var dark = html.getAttribute('data-theme') !== 'dark';
+  html.setAttribute('data-theme', dark ? 'dark' : 'light');
+  var navBtn = document.getElementById('themeNavBtn');
+  if (navBtn) navBtn.textContent = dark ? 'Light' : 'Dark';
+}
+
+// ═══════════════════════════════════════════════════════════
+// TOOLTIP
+// ═══════════════════════════════════════════════════════════
+const tooltip = document.getElementById("tooltip");
+const ttName  = document.getElementById("tt-name");
+const ttBody  = document.getElementById("tt-body");
+
+function showTooltip(evt, proj) {
+  const cueCol = proj.CUE_pred > 0.4 ? "#7eb36a" : proj.CUE_pred > 0.29 ? "#e5c07b" : "#f07071";
+  ttName.textContent = proj.name;
+  ttBody.innerHTML = `
+    <div class="tt-row"><span>Country: </span>${proj.country}, ${proj.region}</div>
+    <div class="tt-row"><span>Biome: </span>${proj.biome}</div>
+    <div class="tt-row"><span>Practice: </span>${proj.practice}</div>
+    <div class="tt-row" style="margin-top:6px"><span>Rh est.: </span>${proj.Rh_est} gC m⁻² yr⁻¹</div>
+    <div class="tt-row"><span>CUE pred.: </span><span style="color:${cueCol}">${proj.CUE_pred.toFixed(2)}</span></div>
+    <div class="tt-row"><span>Credits: </span>${proj.credits_tCO2yr.toLocaleString()} tCO₂/yr</div>
+    <div class="tt-row"><span>Registry: </span>${proj.registry}</div>
+    <div class="tt-note">${proj.note}</div>
+  `;
+  tooltip.style.display = "block";
+  moveTooltip(evt);
+}
+
+function moveTooltip(evt) {
+  const x = evt.clientX, y = evt.clientY;
+  const tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+  tooltip.style.left = (x + 14 + tw > window.innerWidth ? x - tw - 14 : x + 14) + "px";
+  tooltip.style.top  = (y + 14 + th > window.innerHeight ? y - th - 14 : y + 14) + "px";
+}
+
+function hideTooltip() { tooltip.style.display = "none"; }
+document.addEventListener("mousemove", e => { if (tooltip.style.display === "block") moveTooltip(e); });
+
+// ═══════════════════════════════════════════════════════════
+// SCATTER CHART
+// ═══════════════════════════════════════════════════════════
+function buildProjectDatasets(projs) {
+  return projs.map(p => ({
+    label: p.name,
+    data: [{ x: p.Rh_est, y: p.CUE_pred, proj: p }],
+    backgroundColor: (PRACTICE_COLORS[p.practice] || "#e5c07b") + "cc",
+    borderColor: "#1b1e23",
+    borderWidth: 1,
+    pointRadius: 7 + (p.credits_tCO2yr / 100000) * 2,
+    pointHoverRadius: 10 + (p.credits_tCO2yr / 100000) * 2,
+  }));
+}
+
+function initChart() {
+  const ctx = document.getElementById("scatterChart").getContext("2d");
+
+  const thresholdPlugin = {
+    id: "thresholds",
+    afterDraw(chart) {
+      const { ctx, chartArea, scales } = chart;
+      const xScale = scales.x, yScale = scales.y;
+
+      const x340 = xScale.getPixelForValue(340);
+      ctx.save();
+      ctx.strokeStyle = "#ea9755";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 3]);
+      ctx.beginPath();
+      ctx.moveTo(x340, chartArea.top);
+      ctx.lineTo(x340, chartArea.bottom);
+      ctx.stroke();
+      ctx.fillStyle = "#ea9755";
+      ctx.font = "9px 'IBM Plex Mono'";
+      ctx.fillText("Rh threshold 340", x340 + 4, chartArea.top + 12);
+
+      const y027 = yScale.getPixelForValue(0.27);
+      ctx.strokeStyle = "#e5c07b";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(chartArea.left, y027);
+      ctx.lineTo(chartArea.right, y027);
+      ctx.stroke();
+      ctx.fillStyle = "#e5c07b";
+      ctx.fillText("CUE ≈ 0.27", chartArea.right - 70, y027 - 4);
+
+      ctx.restore();
+    }
+  };
+
+  const projs = filtered();
+  scatterChart = new Chart(ctx, {
+    type: "scatter",
+    plugins: [thresholdPlugin],
+    data: {
+      datasets: [
+        {
+          label: "Model (Cui et al. 2026)",
+          data: MODEL_CURVE,
+          backgroundColor: "#7eb36a66",
+          borderColor: "transparent",
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+          order: 2,
+        },
+        ...buildProjectDatasets(projs)
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 400 },
+      scales: {
+        x: {
+          type: "linear",
+          min: 0, max: 860,
+          title: { display: true, text: "Rh (gC m⁻² yr⁻¹)", color: "#808080", font: { family: "'IBM Plex Mono'", size: 10 } },
+          grid: { color: "#393a3d" },
+          ticks: { color: "#808080", font: { family: "'IBM Plex Mono'", size: 9 } }
+        },
+        y: {
+          type: "linear",
+          min: 0.10, max: 0.65,
+          title: { display: true, text: "CUE_ST", color: "#808080", font: { family: "'IBM Plex Mono'", size: 10 } },
+          grid: { color: "#393a3d" },
+          ticks: { color: "#808080", font: { family: "'IBM Plex Mono'", size: 9 }, callback: v => v.toFixed(2) }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: false,
+          external({ chart, tooltip: tt }) {
+            if (tt.opacity === 0) { hideTooltip(); return; }
+            const dp = tt.dataPoints?.[0];
+            if (!dp) return;
+            const proj = dp.raw?.proj;
+            if (!proj) return;
+            const canvas = chart.canvas;
+            const rect = canvas.getBoundingClientRect();
+            const fakeEvt = { clientX: rect.left + tt.caretX, clientY: rect.top + tt.caretY };
+            showTooltip(fakeEvt, proj);
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateChart() {
+  if (!scatterChart) return;
+  const projs = filtered();
+  scatterChart.data.datasets = [
+    scatterChart.data.datasets[0],
+    ...buildProjectDatasets(projs)
+  ];
+  scatterChart.update();
+}
+
+// ═══════════════════════════════════════════════════════════
+// BIOME BARS
+// ═══════════════════════════════════════════════════════════
+function renderBiomeBars() {
+  const container = document.getElementById("biomeBars");
+  container.innerHTML = BIOME_CUE.map(b => {
+    const pct = Math.round(b.CUE * 200);
+    const col = b.CUE > 0.4 ? "#7eb36a" : b.CUE > 0.3 ? "#e5c07b" : "#f07071";
+    const nameCol = b.regime === "Low-productivity" ? "#7eb36a" : "#ea9755";
+    return `
+      <div class="biome-row">
+        <div class="biome-header">
+          <span class="biome-name" style="color:${nameCol}">${b.biome}</span>
+          <span class="biome-meta">Rh ≈ ${b.Rh} | MAT ${b.MAT}°C | MAP ${b.MAP}mm</span>
+        </div>
+        <div class="biome-bar-wrap">
+          <div class="biome-bar-bg">
+            <div class="biome-bar-fill" style="width:${pct}%;background:${col}"></div>
+          </div>
+          <span class="biome-val" style="color:${col}">${b.CUE.toFixed(2)}</span>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+// ═══════════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════════
+function renderStats() {
+  const projs = filtered();
+  const avgCUE = projs.length
+    ? (projs.reduce((s, p) => s + p.CUE_pred, 0) / projs.length).toFixed(3)
+    : "—";
+  const totalCredits = projs.reduce((s, p) => s + p.credits_tCO2yr, 0);
+  const pre  = projs.filter(p => p.Rh_est < 340).length;
+  const post = projs.filter(p => p.Rh_est >= 340).length;
+
+  document.getElementById("stats").innerHTML = [
+    { label:"Projects shown",  val: projs.length,                      unit:"",                col:"#7eb36a" },
+    { label:"Avg. CUE pred.",  val: avgCUE,                            unit:"",                col:"#e5c07b" },
+    { label:"Total credits",   val: (totalCredits/1000).toFixed(0)+"k",unit:"tCO₂/yr",         col:"#64b9c4" },
+    { label:"Pre-threshold",   val: pre,                                unit:"proj (Rh < 340)", col:"#7eb36a" },
+    { label:"Post-threshold",  val: post,                               unit:"proj (Rh ≥ 340)", col:"#ea9755" },
+  ].map(s => `
+    <div class="stat-card">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-val" style="color:${s.col}">${s.val}</div>
+      ${s.unit ? `<div class="stat-unit">${s.unit}</div>` : ""}
+    </div>`
+  ).join("");
+}
+
+// ═══════════════════════════════════════════════════════════
+// TABLE
+// ═══════════════════════════════════════════════════════════
+function renderTable() {
+  const projs = filtered();
+  document.getElementById("table-meta").textContent =
+    `${projs.length} project${projs.length !== 1 ? "s" : ""} · bubble size in chart ∝ credits/yr`;
+
+  document.getElementById("tableBody").innerHTML = projs.map((p) => {
+    const regime = p.Rh_est < 340 ? "Low-productivity" : "High-productivity";
+    const regCol = REGIME_COLOR[regime];
+    const cueCol = p.CUE_pred > 0.4 ? "#7eb36a" : p.CUE_pred > 0.29 ? "#e5c07b" : "#f07071";
+    const pCol   = PRACTICE_COLORS[p.practice] || "#ebebec";
+    const impl   = p.Rh_est < 340
+      ? "↑ CUE zone — microbial C retention high; C inputs drive sequestration"
+      : p.Rh_est < 400
+      ? "⚡ Near threshold — CUE stabilising; mineral protection matters"
+      : "Saturated CUE — necromass / mineral pathways dominate SOC formation";
+
+    return `<tr
+      onmouseenter="showTooltip(event,PROJECTS[${PROJECTS.indexOf(p)}])"
+      onmouseleave="hideTooltip()">
+      <td style="color:var(--text)">${p.name}</td>
+      <td style="color:var(--muted)">${p.country} / ${p.region}</td>
+      <td style="color:${regCol}">${p.biome}</td>
+      <td style="color:${pCol}">${p.practice}</td>
+      <td style="color:var(--muted)">${p.Rh_est}</td>
+      <td><span style="color:${cueCol}">${p.CUE_pred.toFixed(2)}</span></td>
+      <td style="color:var(--muted)">${p.credits_tCO2yr.toLocaleString()}</td>
+      <td style="color:var(--muted)">${p.registry}</td>
+      <td style="color:var(--muted);font-style:italic;max-width:220px">${impl}</td>
+    </tr>`;
+  }).join("");
+}
+
+// ═══════════════════════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════════════════════
+function renderFilters() {
+  const container = document.getElementById("filters");
+  let html = `<span class="filter-label">Biome</span>`;
+
+  allBiomes.forEach(b => {
+    const active = selectedBiome === b ? "active-green" : "";
+    html += `<button class="filter-btn ${active}" onclick="setBiome('${b.replace(/'/g,"\\'")}')">
+      ${b}</button>`;
+  });
+
+  html += `<div class="filter-sep"></div><span class="filter-label">Registry</span>`;
+
+  allRegistries.forEach(r => {
+    const active = selectedRegistry === r ? "active-blue" : "";
+    html += `<button class="filter-btn ${active}" onclick="setRegistry('${r.replace(/'/g,"\\'")}')">
+      ${r}</button>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function setBiome(b) { selectedBiome = b; refresh(); }
+function setRegistry(r) { selectedRegistry = r; refresh(); }
+
+function refresh() {
+  renderFilters();
+  renderStats();
+  renderTable();
+  updateChart();
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+renderBiomeBars();
+renderFilters();
+renderStats();
+renderTable();
+initChart();
+</script>
+</body>
+</html>

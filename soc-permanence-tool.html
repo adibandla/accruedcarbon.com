@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soil Carbon Permanence — Decision Support Tool</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:ital,wght@0,300;0,400;0,500;1,400&family=EB+Garamond:wght@400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#ffffff;
+  --text:#1b1e23;--text2:#808080;--text3:#b9b9bb;--muted:#808080;
+  --border:#e0e0e0;--border2:#b9b9bb;
+  --sans:'Inter',-apple-system,sans-serif;
+  --serif:'EB Garamond',Georgia,serif;
+  --mono:'IBM Plex Mono',monospace;
+  --green:#7eb36a;--green-dim:#edf6ea;
+  --red:#f07071;--red-dim:#fdeaea;
+  --amber:#ea9755;--amber-dim:#fdf3e8;
+  --blue:#85a2f7;--blue-dim:#edf1fe;
+  --car:#7eb36a;--car-dim:#edf6ea;
+  --verra:#bc85d9;--verra-dim:#f6eefa;
+  --lsr:#64b9c4;--lsr-dim:#e8f6f8;
+  --lsr-b:#7ac7d0;--lsr-b-dim:#e3f6f8;
+}
+[data-theme="dark"]{
+  --bg:#1b1e23;--text:#ebebec;--text2:#808080;--text3:#4a4b4e;--muted:#4a4b4e;
+  --border:#393a3d;--border2:#4a4b4e;
+  --green-dim:#1d2d1a;--car-dim:#1d2d1a;
+  --verra-dim:#251535;--lsr-dim:#142428;--lsr-b-dim:#152628;
+  --amber-dim:#251b0a;--red-dim:#2a1414;--blue-dim:#151b35;
+}
+html{transition:background 0.2s,color 0.2s;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.8;}
+
+/* ── SITE NAV ── */
+.site-nav{display:flex;align-items:center;height:53px;padding:0 28px;border-bottom:1px solid var(--border);gap:20px;}
+.site-hamburger{background:none;border:none;cursor:pointer;color:var(--text);padding:4px;display:flex;align-items:center;flex-shrink:0;}
+.site-hamburger svg{width:20px;height:20px;stroke:var(--text);stroke-width:1.5;}
+.site-hamburger:hover{opacity:0.5;}
+.site-logo{font-family:var(--serif);font-size:17px;font-weight:400;color:var(--text);text-decoration:none;flex:1;}
+.site-theme-btn{background:none;border:none;color:var(--text3);font-size:11px;font-family:var(--mono);letter-spacing:.04em;padding:4px 0;cursor:pointer;transition:all .15s;}
+.site-theme-btn:hover{color:var(--text);}
+
+/* ── SITE MENU OVERLAY ── */
+.site-menu{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;flex-direction:column;padding:0;}
+.site-menu.open{display:flex;}
+.site-menu-top{display:flex;justify-content:space-between;align-items:center;height:53px;padding:0 28px;border-bottom:1px solid var(--border);}
+.site-menu-logo{font-family:var(--serif);font-size:17px;font-weight:400;color:var(--text);}
+.site-menu-close{background:none;border:none;cursor:pointer;color:var(--text);padding:4px;display:flex;align-items:center;}
+.site-menu-close:hover{opacity:0.5;}
+.site-menu-close svg{width:20px;height:20px;stroke:var(--text);stroke-width:1.5;}
+.site-menu-links{list-style:none;padding:0 28px;}
+.site-menu-links li{border-bottom:1px solid var(--border);}
+.site-menu-links li a{display:flex;align-items:center;justify-content:space-between;padding:20px 0;font-size:clamp(28px,4vw,44px);font-weight:400;color:var(--text);text-decoration:none;letter-spacing:-.02em;line-height:1.1;transition:opacity .15s;}
+.site-menu-links li a:hover{opacity:0.4;}
+.site-menu-arr{font-size:0.5em;color:var(--muted);}
+
+/* ── APP LAYOUT ── */
+.app-layout{display:grid;grid-template-columns:480px 1fr;min-height:calc(100vh - 53px);}
+
+/* ── CONTROLS SIDEBAR ── */
+.controls-sidebar{border-right:1px solid var(--border);padding:40px 40px 80px;position:sticky;top:53px;height:calc(100vh - 53px);overflow-y:auto;}
+.sidebar-title-block{margin-bottom:0;}
+.controls-sidebar .article-kicker{margin-bottom:16px;}
+.controls-sidebar h1{font-size:2.5rem;font-weight:400;letter-spacing:-.03em;line-height:1.05;color:var(--text);margin-bottom:18px;margin-top:0;}
+.controls-sidebar .article-intro{font-size:14px;line-height:1.75;margin-bottom:20px;max-width:none;color:var(--text2);}
+.sidebar-methods-link{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);text-decoration:none;margin-top:24px;margin-bottom:0;transition:color .15s;}
+.sidebar-methods-link:hover{color:var(--text);}
+.sidebar-methods-link span{font-size:22px;letter-spacing:0;line-height:1;}
+
+.ctrl-section{padding:24px 0;border-bottom:1px solid var(--border);}
+.ctrl-section:last-child{border-bottom:none;}
+.ctrl-label{font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+
+/* ── SYSTEM TABS ── */
+.tab-row{display:flex;border:1px solid var(--border);width:100%;}
+.tab-btn{font-family:var(--mono);font-size:12px;padding:7px 12px;cursor:pointer;background:none;border:none;border-right:1px solid var(--border);color:var(--text2);transition:all .15s;letter-spacing:.04em;text-transform:uppercase;flex:1;text-align:center;}
+.tab-btn:last-child{border-right:none;}
+.tab-btn.active-sys{background:var(--text);color:var(--bg);}
+.tab-btn:hover:not(.active-sys){color:var(--text);}
+
+/* ── METH ACCORDION ── */
+.meth-list{display:flex;flex-direction:column;}
+.meth-item{border-bottom:1px solid var(--border);cursor:pointer;}
+.meth-item:first-child{border-top:1px solid var(--border);}
+.meth-item:last-child{border-bottom:none;}
+.meth-header{display:flex;align-items:baseline;justify-content:space-between;padding:16px 0;gap:8px;user-select:none;}
+.meth-name{font-size:15px;color:var(--text);flex:1;line-height:1.2;}
+.meth-plus{font-family:var(--mono);font-size:18px;font-weight:300;color:var(--text3);margin-left:4px;display:inline-block;line-height:1;transition:color .15s;}
+.meth-item.open .meth-plus{color:var(--text);}
+.meth-badge-right{font-family:var(--mono);font-size:12px;color:var(--text3);border-bottom:1px solid var(--border2);padding-bottom:1px;white-space:nowrap;flex-shrink:0;}
+.meth-body{padding:0 0 18px;display:none;}
+.meth-item.open .meth-body{display:block;}
+
+/* ── METHODOLOGY INFO ── */
+.methodology-info{padding:10px 0 0 14px;margin-top:4px;font-size:15px;line-height:1.75;color:var(--text2);}
+.methodology-info.car{border-left:2px solid var(--car);}
+.methodology-info.verra{border-left:2px solid var(--verra);}
+.methodology-info.lsr{border-left:2px solid var(--lsr);}
+.methodology-info strong{font-weight:400;color:var(--text);}
+
+/* ── LSR TOGGLE ── */
+.lsr-toggle{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+.lsr-opt{font-family:var(--mono);font-size:11px;padding:4px 9px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;}
+.lsr-opt.active-a{background:var(--lsr-dim);color:var(--lsr);border-color:var(--lsr);}
+.lsr-opt.active-b{background:var(--lsr-b-dim);color:var(--lsr-b);border-color:var(--lsr-b);}
+.lsr-opt.active-both{color:var(--text);border-color:var(--lsr);}
+.lsr-sub-note{font-size:13px;font-style:italic;color:var(--text3);margin-top:6px;line-height:1.5;}
+
+/* ── SLIDERS ── */
+.slider-group{display:flex;flex-direction:column;gap:10px;}
+.slider-row{display:flex;justify-content:space-between;align-items:baseline;gap:6px;}
+.slider-lbl{font-size:14px;color:var(--text2);line-height:1.3;}
+.slider-val{font-family:var(--mono);font-size:13px;color:var(--text);white-space:nowrap;flex-shrink:0;}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--border2);outline:none;cursor:pointer;display:block;margin-top:5px;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--text);cursor:pointer;border:1px solid var(--bg);}
+input[type=range]:disabled{opacity:0.3;cursor:not-allowed;}
+.split-vis{display:flex;height:2px;overflow:hidden;margin:6px 0 3px;}
+.split-maoc{background:var(--green);transition:width .1s;}
+.split-poc{background:var(--amber);flex:1;}
+.split-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--text3);}
+.reset-btn{font-family:var(--mono);font-size:12px;padding:3px 9px;border:1px solid var(--border2);background:none;color:var(--text3);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;}
+.reset-btn:hover{color:var(--text);border-color:var(--text);}
+.source-tag{font-family:var(--mono);font-size:12px;color:var(--text3);margin-top:4px;line-height:1.4;}
+.preset-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.preset-btn{font-family:var(--mono);font-size:12px;padding:4px 10px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer;}
+.preset-btn:hover{color:var(--text);}
+
+/* ── NOTES ── */
+.car-note{font-size:14px;color:var(--text2);border-left:2px solid var(--car);padding:8px 0 8px 14px;margin-top:12px;line-height:1.7;}
+.verra-note{font-size:14px;color:var(--text2);border-left:2px solid var(--verra);padding:8px 0 8px 14px;margin-top:12px;line-height:1.7;}
+.lsr-note{font-size:14px;color:var(--text2);border-left:2px solid var(--lsr);padding:8px 0 8px 14px;margin-top:12px;line-height:1.7;}
+
+/* ── BREURE ── */
+.breure-label{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--lsr);margin-bottom:8px;}
+.breure-preset{font-family:var(--mono);font-size:12px;padding:4px 10px;border:1px solid var(--border2);background:none;color:var(--text3);cursor:pointer;}
+.breure-preset:hover{color:var(--text);}
+.sat-warning{font-size:13px;padding:6px 0 6px 10px;margin-top:8px;line-height:1.5;display:none;}
+.sat-warning.low{color:var(--green);border-left:2px solid var(--green);}
+.sat-warning.high{color:var(--red);border-left:2px solid var(--red);}
+
+/* ── PARAMS PANEL (main) ── */
+.params-panel{border-top:1px solid var(--border);border-left:1px solid var(--border);display:grid;grid-template-columns:repeat(3,1fr);}
+.param-cell{padding:14px 18px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+.param-cell.wide{grid-column:span 2;}
+.param-cell.full{grid-column:span 3;}
+.param-cell-label{font-family:var(--mono);font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--text2);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.risk-badge{font-family:var(--mono);display:inline-block;font-size:9px;padding:1px 6px;border:1px solid var(--border2);color:var(--text3);margin-left:5px;vertical-align:middle;}
+.risk-HR{border-color:var(--red);color:var(--red);}
+.risk-NH,.risk-NR{border-color:var(--green);color:var(--green);}
+.risk-HH{border-color:var(--amber);color:var(--amber);}
+
+/* ── REFERENCE VALUES ── */
+.compliance-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--border);}
+.compliance-row:last-child{border-bottom:none;}
+.c-lbl{font-size:14px;color:var(--text2);}
+.c-val{font-family:var(--mono);font-size:13px;font-weight:500;}
+
+/* ── MAIN OUTPUT ── */
+.output-main{padding:72px 80px 100px;max-width:960px;}
+.article-kicker{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:18px;}
+h1{font-size:clamp(34px,3vw,54px);font-weight:400;letter-spacing:-.025em;line-height:1.05;color:var(--text);margin-bottom:16px;}
+.article-byline{font-family:var(--mono);font-size:12px;color:var(--text3);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.version{font-family:var(--mono);font-size:11px;color:var(--text3);border:1px solid var(--border);padding:1px 6px;}
+.article-intro{font-size:15px;line-height:1.8;color:var(--text2);margin-bottom:56px;max-width:60ch;}
+
+/* ── METRICS ── */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:0 0 0;border-top:1px solid var(--border);border-left:1px solid var(--border);}
+.metric{padding:28px 20px 24px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);}
+.metric .m-lbl{font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);margin-bottom:14px;white-space:nowrap;overflow:visible;}
+.metric .m-val{font-family:var(--sans);font-size:2.4rem;font-weight:300;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+.metric .m-sub{font-family:var(--mono);font-size:12px;color:var(--text3);margin-top:8px;letter-spacing:.03em;}
+.overstate-bar{height:2px;background:var(--border);margin-top:6px;overflow:hidden;}
+.overstate-fill{height:100%;background:var(--red);transition:width .2s;}
+
+.m-pos{color:var(--red);}.m-neg{color:var(--green);}.m-neu{color:var(--text2);}
+
+/* ── CHART ── */
+.chart-panel{padding:52px 0 0;border-top:1px solid var(--border);margin-bottom:0;}
+.panel-title{font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);margin-bottom:16px;font-weight:400;}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;}
+.leg-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;color:var(--text2);}
+.leg-sq{width:8px;height:8px;flex-shrink:0;}
+.chart-container{position:relative;width:100%;}
+.chart-note{font-family:var(--mono);font-size:12px;color:var(--text3);margin-top:10px;padding-top:10px;border-top:1px solid var(--border);line-height:1.6;}
+
+/* ── TWO COL SENSITIVITY ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border);margin-top:0;}
+.sens-col{padding:48px 56px 32px 0;border-right:1px solid var(--border);}
+.sens-col:last-child{padding:48px 0 32px 56px;border-right:none;}
+
+/* ── SECTIONS ── */
+h2{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);font-weight:400;margin:56px 0 24px;padding-top:56px;border-top:1px solid var(--border);}
+p{color:var(--text2);margin-bottom:14px;max-width:64ch;}
+details summary{cursor:pointer;user-select:none;list-style:none;}
+details summary::-webkit-details-marker{display:none;}
+.section-toggle{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);padding:20px 0;display:block;border-top:1px solid var(--border);}
+.faq-item{border-top:1px solid var(--border);}
+.faq-item summary{padding:12px 0;font-size:15px;font-weight:400;color:var(--text);display:flex;justify-content:space-between;align-items:center;}
+.faq-item div{padding:0 0 16px;font-size:15px;color:var(--text2);line-height:1.75;}
+
+/* ── REFS ── */
+.refs-grid{display:grid;grid-template-columns:28px 1fr;gap:4px 16px;margin-top:16px;}
+.ref-num{font-family:var(--mono);font-size:12px;color:var(--text3);padding-top:2px;text-align:right;}
+.ref-text{font-size:14px;color:var(--text2);line-height:1.6;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.ref-text a{color:var(--text2);text-decoration:underline;text-decoration-color:var(--border2);}
+.ref-text a:hover{color:var(--text);}
+
+/* ── SCROLL INDICATOR ── */
+.scroll-indicator{position:fixed;right:14px;bottom:24px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--text3);writing-mode:vertical-rl;transform:rotate(180deg);}
+
+/* ── FOOTER ── */
+.site-footer{border-top:1px solid var(--border);padding:32px 56px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;}
+.footer-col-label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+.footer-col-val{font-size:14px;color:var(--text2);}
+.footer-col-val a{color:var(--text2);text-decoration:none;}
+.footer-col-val a:hover{color:var(--text);}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0;}
+
+/* ── INFO ICON ── */
+.info-icon{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border:1px solid var(--border2);font-family:var(--mono);font-size:8px;color:var(--text3);cursor:default;margin-left:5px;vertical-align:middle;flex-shrink:0;font-style:normal;line-height:1;}
+.info-icon:hover{color:var(--text2);border-color:var(--text2);}
+#tip-box{position:fixed;background:var(--bg);border:1px solid var(--border);padding:7px 11px;font-size:12px;font-family:var(--sans);font-weight:400;color:var(--text2);line-height:1.55;width:240px;z-index:9999;pointer-events:none;white-space:normal;display:none;}
+
+/* ── SECTION FOLD ── */
+.section-fold{border-top:1px solid var(--border);margin-top:20px;}
+.section-fold-header{display:flex;align-items:baseline;justify-content:space-between;padding:12px 0;cursor:pointer;user-select:none;}
+.section-fold-label{font-family:var(--mono);font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--text2);transition:color .15s;}
+.section-fold-header:hover .section-fold-label{color:var(--text2);}
+.section-fold-plus{font-family:var(--mono);font-size:20px;font-weight:300;color:var(--text3);line-height:1;transition:color .15s;}
+.section-fold.open .section-fold-plus{color:var(--text);}
+.section-fold-header:hover .section-fold-plus{color:var(--text2);}
+.section-fold-body{display:none;padding-bottom:40px;}
+.section-fold.open .section-fold-body{display:block;}
+</style>
+</head>
+<body>
+
+<div class="site-menu" id="siteMenu">
+  <div class="site-menu-top">
+    <span class="site-menu-logo">[accrued] carbon</span>
+    <button class="site-menu-close" onclick="closeSiteMenu()" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+  </div>
+  <ul class="site-menu-links">
+    <li><a href="index.html">About <span class="site-menu-arr">↗</span></a></li>
+    <li><a href="#">Work <span class="site-menu-arr">↗</span></a></li>
+    <li><a href="#">Tools <span class="site-menu-arr">↗</span></a></li>
+    <li><a href="#">Writing <span class="site-menu-arr">↗</span></a></li>
+  </ul>
+</div>
+
+<nav class="site-nav">
+  <button class="site-hamburger" onclick="openSiteMenu()" aria-label="Open menu">
+    <svg viewBox="0 0 24 24" fill="none"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="13" x2="21" y2="13"/><line x1="3" y1="19" x2="21" y2="19"/></svg>
+  </button>
+  <a href="index.html" class="site-logo">[accrued] carbon</a>
+  <button class="site-theme-btn" onclick="toggleTheme()" id="themeLabel">Light</button>
+</nav>
+
+<div class="app-layout">
+
+  <!-- ── CONTROLS SIDEBAR ── -->
+  <aside class="controls-sidebar">
+
+    <div class="sidebar-title-block">
+      <div class="article-kicker">Decision support tool · Proof of concept</div>
+      <h1>Soil carbon permanence</h1>
+      <p class="article-intro">Newly sequestered SOC partitions into POC (years to decades) and MAOC (centuries). Crediting both equally overstates the durable climate benefit. This tool applies pool-specific MRTs to published sequestration figures across three accounting frameworks.</p>
+      <a href="#fold-example" class="sidebar-methods-link" onclick="document.getElementById('fold-example').classList.add('open');document.querySelector('#fold-example .section-fold-plus').textContent='×';">
+        Read worked example
+        <span>→</span>
+      </a>
+    </div>
+
+    <!-- FRAMEWORK -->
+    <div class="ctrl-section">
+      <div class="ctrl-label">Framework</div>
+      <div class="meth-list">
+
+        <div class="meth-item" id="mi-car" onclick="switchMeth('car')">
+          <div class="meth-header">
+            <span class="meth-name">CAR SEP v1.1 <span class="meth-plus" id="mp-car">+</span></span>
+            <span class="meth-badge-right">tonne-year</span>
+          </div>
+          <div class="meth-body" style="display:none;">
+            <div id="meth-info-car" class="methodology-info car">
+              <strong>CAR Soil Enrichment Protocol v1.1 — Section 5.3 Tonne-Year Accounting.</strong> Farmers commit to shorter periods (e.g. 20 years) and receive a proportional fraction of credits — the protocol credits 1% of sequestration per year of storage. No buffer pool required for the tonne-year pathway. This analysis extends CAR's flat 1%/yr rate to a pool-specific MRT approach (Minasny &amp; McBratney 2024), applying different effective rates to POC and MAOC based on their residence times.
+            </div>
+            <div id="car-note-box" class="car-note">CAR tonne-year: credits 1%/yr of sequestration per year committed. No separate buffer pool. Pool-specific MRT extends this to POC and MAOC separately using min(MRT/horizon, 1) factors.</div>
+          </div>
+        </div>
+
+        <div class="meth-item" id="mi-verra" onclick="switchMeth('verra')">
+          <div class="meth-header">
+            <span class="meth-name">Verra VM0042 <span class="meth-plus" id="mp-verra">+</span></span>
+            <span class="meth-badge-right">tonne-tonne</span>
+          </div>
+          <div class="meth-body" style="display:none;">
+            <div id="meth-info-verra" class="methodology-info verra">
+              <strong>Verra VM0042 v2.1 — tonne-tonne accounting with buffer pool.</strong> Full credit issued for verified SOC gains. Permanence assured through a pooled buffer account (typically 10–20% of credits withheld). 100-year crediting period with reversal liability. No pool-specific MRT adjustment — all sequestered SOC credited equally regardless of fraction. This analysis shows what the net figure would look like if tonne-year pool-specific accounting were applied instead.
+            </div>
+            <div id="verra-note-box" class="verra-note">Verra tonne-tonne: full credit issued minus buffer pool withholding. Buffer typically 10–20% withheld against reversal risk. No MRT adjustment in current VM0042.</div>
+          </div>
+        </div>
+
+        <div class="meth-item" id="mi-lsr" onclick="switchMeth('lsr')">
+          <div class="meth-header">
+            <span class="meth-name">GHG Protocol LSR <span class="meth-plus" id="mp-lsr">+</span></span>
+            <span class="meth-badge-right">inventory</span>
+          </div>
+          <div class="meth-body" style="display:none;">
+            <div id="meth-info-lsr" class="methodology-info lsr">
+              <strong>GHG Protocol LSR v1.0 (eff. 2027) — corporate inventory / stock-change.</strong> If removals are claimed, LSR Requirement 2 mandates both the <strong>permanence principle</strong> (reversals reported as positive emissions in the year they occur) and the <strong>conservativeness principle</strong> (estimates must not overestimate removals). LSR Guidance for SOC pools expected Q2 2026.
+              <div class="lsr-toggle">
+                <span style="font-family:var(--mono);font-size:12px;color:var(--text3);">Show:</span>
+                <button class="lsr-opt active-a" id="lsr-opt-a" onclick="event.stopPropagation();setLsrView('a')">Full delta</button>
+                <button class="lsr-opt" id="lsr-opt-b" onclick="event.stopPropagation();setLsrView('b')">Pool-weighted</button>
+                <button class="lsr-opt" id="lsr-opt-both" onclick="event.stopPropagation();setLsrView('both')">Both</button>
+              </div>
+              <div class="lsr-sub-note" id="lsr-sub-note-text">Full delta (upper bound): gross − full sequestration, no pool weighting. Pre-conservativeness ceiling — likely fails LSR Requirement 2 if taken at face value. Pool-weighted (conservative): MRT discount applied to POC and MAOC separately as the conservativeness adjustment, following Minasny &amp; McBratney (2024).</div>
+            </div>
+            <div id="lsr-note-box" class="lsr-note">
+              <span id="lsr-note-a-text"><strong>LSR: full delta (upper bound).</strong> Gross emissions minus the full claimed sequestration — no pool weighting, no permanence discount. Pre-conservativeness ceiling. Likely fails LSR Requirement 2 if taken at face value.</span>
+              <span id="lsr-note-b-text" style="display:none;"><strong>LSR: pool-weighted (conservative).</strong> Same POC/MAOC MRT framework as CAR, applied as the conservativeness adjustment under LSR Req. 2. Sliders active. Follows Minasny &amp; McBratney (2024); pending Q2 2026 LSR Guidance.</span>
+              <span id="lsr-note-both-text" style="display:none;"><strong>Both scenarios shown.</strong> Full delta (dark teal) = upper bound before conservativeness. Pool-weighted (mid teal) = MRT-discounted conservative estimate. The gap between the two bars is the permanence cost of the POC fraction.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- REFERENCE VALUES -->
+    <div class="ctrl-section">
+      <div class="ctrl-label">Reference values</div>
+      <div class="compliance-row"><span class="c-lbl">Claimed net (tonne-tonne)</span><span class="c-val" id="ref-claimed">—</span></div>
+      <div class="compliance-row"><span class="c-lbl">Conventional benchmark</span><span class="c-val" id="ref-conv">—</span></div>
+      <div class="compliance-row"><span class="c-lbl">Gross emissions</span><span class="c-val" id="ref-gross">—</span></div>
+      <div class="compliance-row"><span class="c-lbl">Claimed sequestration</span><span class="c-val" id="ref-seq">—</span></div>
+      <div class="compliance-row"><span class="c-lbl">Effective credit (this method)</span><span class="c-val" id="ref-credit">—</span></div>
+    </div>
+
+  </aside>
+
+  <!-- ── MAIN OUTPUT ── -->
+  <main class="output-main">
+
+    <!-- DATASET TABS -->
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px;">
+      <span style="font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">Dataset</span>
+      <div class="tab-row" style="width:auto;">
+        <button class="tab-btn active-sys" onclick="switchSys('fm',this)">First Milk</button>
+        <button class="tab-btn" onclick="switchSys('wop',this)">White Oak</button>
+      </div>
+    </div>
+
+    <!-- METRICS -->
+    <div class="metrics">
+      <div class="metric">
+        <div class="m-lbl">Method net <span id="meth-label-sm" style="opacity:.6;">CAR</span><i class="info-icon" data-tip="Net emissions under the selected accounting framework, after applying pool-specific MRT discounting to the claimed sequestration.">i</i></div>
+        <div class="m-val" id="ty-net">—</div>
+        <div class="m-sub" id="ty-unit">kg CO2e / litre milk</div>
+      </div>
+      <div class="metric" id="metric-lsr-b" style="display:none;">
+        <div class="m-lbl">LSR pool-weighted <span style="opacity:.6;">conservative</span></div>
+        <div class="m-val" id="lsr-b-net">—</div>
+        <div class="m-sub" id="lsr-b-unit">kg CO2e / litre milk</div>
+      </div>
+      <div class="metric">
+        <div class="m-lbl">Claimed (tonne-tonne)<i class="info-icon" data-tip="The published net figure: gross emissions minus full claimed sequestration, with no permanence adjustment.">i</i></div>
+        <div class="m-val" id="tt-net">—</div>
+        <div class="m-sub" id="tt-unit">kg CO2e / litre milk</div>
+      </div>
+      <div class="metric">
+        <div class="m-lbl">Overstatement<i class="info-icon" data-tip="How much the claimed net figure underestimates true emissions relative to the MRT-adjusted method net, expressed as a percentage.">i</i></div>
+        <div class="m-val m-pos" id="overstate">—</div>
+        <div class="overstate-bar"><div class="overstate-fill" id="overstate-fill" style="width:0%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="m-lbl">vs conventional<i class="info-icon" data-tip="How much lower the method-adjusted net is compared to the conventional (non-regenerative) benchmark for the same product.">i</i></div>
+        <div class="m-val" id="vs-conv" style="display:flex;align-items:baseline;gap:6px;"><span id="vs-conv-arrow">—</span><span id="vs-conv-num"></span></div>
+        <div class="m-sub" id="conv-ref">—</div>
+      </div>
+    </div>
+
+    <!-- PARAMETERS PANEL -->
+    <div class="params-panel">
+
+      <!-- MAOC accrual fraction -->
+      <div class="param-cell wide">
+        <div class="param-cell-label">
+          MAOC accrual fraction<i class="info-icon" data-tip="Share of new sequestration that binds to mineral surfaces (MAOC) vs remains as particulate carbon (POC). Prairie et al. 2023.">i</i>
+          <span class="slider-val" id="out-maoc">60%</span>
+        </div>
+        <input type="range" id="sl-maoc" min="30" max="95" step="1" value="60" oninput="onMaoc(this.value)">
+        <div class="preset-row">
+          <button class="preset-btn" onclick="setPreset(72,'NT split — 28% POC / 72% MAOC (Prairie 2023, 85% MAOC base)')">NT 28/72</button>
+          <button class="preset-btn" onclick="setPreset(63,'Average — 37% POC / 63% MAOC (Prairie 2023, 85% MAOC base)')">Avg 37/63</button>
+          <button class="preset-btn" onclick="setPreset(56,'CI split — 44% POC / 56% MAOC (Prairie 2023, 85% MAOC base)')">CI 44/56</button>
+        </div>
+        <div class="split-vis"><div class="split-maoc" id="split-maoc-bar" style="width:60%"></div><div class="split-poc"></div></div>
+        <div class="split-labels"><span id="maoc-pct">MAOC 60%</span><span id="poc-pct">POC 40%</span></div>
+        <div class="source-tag" id="split-source" style="margin-top:8px;">Prairie et al. 2023 | Base MAOC 80% | NT: 32/68 | CI: 47/53 | Avg: 40/60</div>
+        <div id="prairie-lsr-note" style="display:none;font-family:var(--mono);font-size:12px;color:var(--lsr);background:var(--lsr-dim);padding:8px 12px;margin-top:6px;line-height:1.6;border-left:2px solid var(--lsr);">Under LSR, Prairie et al. provides the conservativeness basis — only the MAOC fraction is durable enough to report as a removal under LSR Req. 2. Both apply in conjunction: <strong>effective seq = seq × MAOC% × (1 − saturation discount)</strong>.</div>
+      </div>
+
+      <!-- Base MAOC stock -->
+      <div class="param-cell">
+        <div class="param-cell-label">Base MAOC stock <span class="slider-val" id="out-base-maoc">80%</span></div>
+        <input type="range" id="sl-base-maoc" min="60" max="95" step="1" value="80" oninput="onBaseStock(this.value)">
+        <div style="font-family:var(--mono);font-size:12px;color:var(--text3);margin-top:6px;">Recomputes accrual split via Prairie et al. 2023</div>
+      </div>
+
+      <!-- POC MRT -->
+      <div class="param-cell">
+        <div class="param-cell-label">POC MRT <span class="slider-val" id="out-poc-mrt">10 yr</span></div>
+        <input type="range" id="sl-poc-mrt" min="2" max="40" step="1" value="10" oninput="update()">
+      </div>
+
+      <!-- MAOC MRT -->
+      <div class="param-cell">
+        <div class="param-cell-label">MAOC MRT <span class="slider-val" id="out-maoc-mrt">200 yr</span></div>
+        <input type="range" id="sl-maoc-mrt" min="20" max="500" step="5" value="200" oninput="update()">
+      </div>
+
+      <!-- Time horizon -->
+      <div class="param-cell">
+        <div class="param-cell-label"><span id="horizon-lbl">Time horizon</span> <span class="slider-val" id="out-horizon">100 yr</span></div>
+        <input type="range" id="sl-horizon" min="5" max="200" step="5" value="100" oninput="update()">
+      </div>
+
+      <!-- Framework-specific -->
+      <div class="param-cell" id="car-rate-row">
+        <div class="param-cell-label">CAR credit rate <span class="slider-val" id="out-car-rate">1%/yr</span></div>
+        <input type="range" id="sl-car-rate" min="0.5" max="2" step="0.1" value="1" oninput="update()">
+      </div>
+      <div class="param-cell" id="verra-buffer-row" style="display:none;">
+        <div class="param-cell-label">Verra buffer pool <span class="slider-val" id="out-buffer">15%</span></div>
+        <input type="range" id="sl-buffer" min="5" max="30" step="1" value="15" oninput="update()">
+      </div>
+      <div class="param-cell" id="lsr-window-row" style="display:none;">
+        <div class="param-cell-label">Reporting window <span class="slider-val" id="out-lsr-window">5 yr</span></div>
+        <input type="range" id="sl-lsr-window" min="1" max="10" step="1" value="5" oninput="update()">
+      </div>
+
+    </div>
+
+    <!-- MAOC SATURATION (collapsible) -->
+    <div class="section-fold" id="fold-sat">
+      <div class="section-fold-header" onclick="toggleFold('fold-sat')">
+        <span class="section-fold-label">MAOC saturation <span style="font-family:var(--mono);font-size:12px;color:var(--text3);margin-left:12px;" id="out-sat">60%</span></span>
+        <span class="section-fold-plus">+</span>
+      </div>
+      <div class="section-fold-body">
+        <div style="max-width:600px;">
+          <div class="breure-label">Breure et al. (2025, Nature Communications)</div>
+          <input type="range" id="sl-sat" min="0" max="100" step="1" value="60" oninput="onSaturation(this.value)">
+          <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+            <button class="breure-preset" onclick="setBreure(80)">UK HR 80%</button>
+            <button class="breure-preset" onclick="setBreure(75)">UK NH 75%</button>
+            <button class="breure-preset" onclick="setBreure(55)">EU NR 55%</button>
+          </div>
+          <div id="sat-warning-low" class="sat-warning low">Below 68% median — MAOC capacity available. New inputs can bind to mineral surfaces.</div>
+          <div id="sat-warning-high" class="sat-warning high">Above 68% median — MAOC near capacity. New inputs route to POC.</div>
+          <div style="display:flex;gap:40px;margin-top:14px;flex-wrap:wrap;">
+            <div>
+              <div style="font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;">Risk class (Breure Fig. 6)</div>
+              <div style="font-size:14px;font-weight:500;" id="breure-risk-label">—</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;margin-top:3px;" id="breure-risk-desc">—</div>
+            </div>
+            <div>
+              <div style="font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;">Adjustment applied</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;" id="breure-adj-desc">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CHART -->
+    <div class="chart-panel">
+      <div class="panel-title">Net emissions comparison</div>
+      <div class="chart-legend" id="main-legend">
+        <span class="leg-item" id="leg-method"><span class="leg-sq" id="leg-method-sq" style="background:#7eb36a;"></span><span id="leg-method-lbl">Method adjusted</span></span>
+        <span class="leg-item" id="leg-lsr-a" style="display:none;"><span class="leg-sq" style="background:#64b9c4;"></span>LSR: full delta</span>
+        <span class="leg-item" id="leg-lsr-b" style="display:none;"><span class="leg-sq" style="background:#7ac7d0;border:1px dashed #64b9c4;"></span>LSR: pool-weighted</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#ea9755;"></span>Claimed net</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#808080;"></span>Conventional</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#85a2f7;"></span>Gross emissions</span>
+      </div>
+      <div class="chart-container" style="height:220px;">
+        <canvas id="main-chart" role="img" aria-label="Bar chart comparing net emissions values">Net emissions bar chart.</canvas>
+      </div>
+      <div class="chart-note" id="chart-note"></div>
+    </div>
+
+    <!-- SENSITIVITY CHARTS -->
+    <div class="two-col">
+      <div class="sens-col">
+        <div class="panel-title">MAOC MRT sensitivity</div>
+        <div class="chart-container" style="height:160px;">
+          <canvas id="sens-chart" role="img" aria-label="Line chart: net emissions vs MAOC MRT">MRT sensitivity.</canvas>
+        </div>
+      </div>
+      <div class="sens-col">
+        <div class="panel-title">Time horizon sensitivity</div>
+        <div class="chart-container" style="height:160px;">
+          <canvas id="horizon-chart" role="img" aria-label="Line chart: net emissions vs time horizon">Horizon sensitivity.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEY CONCEPTS -->
+    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:0;">
+      <details><summary style="font-family:var(--mono);font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--text2);display:block;padding:12px 0;">Key concepts ↓</summary>
+      <div style="display:flex;flex-direction:column;gap:0;" id="faq-list">
+
+        <details class="faq-item">
+          <summary class="faq-item" style="padding:12px 0;font-size:14px;font-weight:500;color:var(--text);display:flex;justify-content:space-between;align-items:center;">
+            What is soil organic carbon (SOC)?
+            <span style="font-family:var(--mono);font-size:.75rem;color:var(--text3);">+</span>
+          </summary>
+          <div style="padding:0 0 16px 0;font-size:14px;color:var(--text2);line-height:1.8;">
+            <p style="margin-top:10px;">When plants grow, they pull carbon dioxide out of the air and use it to build leaves, stems, and roots. When those plant parts die, they fall into the soil and decompose. Some of that carbon gets eaten by microbes, some escapes back into the air, and some stays locked in the soil — that locked portion is soil organic carbon.</p>
+            <p style="margin-top:8px;">SOC is important for two reasons. First, it improves soil health — it helps soil hold water, supports microbes, and feeds crops. Second, it stores carbon that would otherwise be in the atmosphere as CO₂. Regenerative farming practices like no-till, cover cropping, and rotational grazing are claimed to increase SOC. The question this tool asks is: how long does that stored carbon actually stay in the soil?</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-item" style="padding:12px 0;font-size:14px;font-weight:500;color:var(--text);display:flex;justify-content:space-between;align-items:center;">
+            What is MAOC — mineral-associated organic carbon?
+            <span style="font-family:var(--mono);font-size:.75rem;color:var(--text3);">+</span>
+          </summary>
+          <div style="padding:0 0 16px 0;font-size:14px;color:var(--text2);line-height:1.8;">
+            <p style="margin-top:10px;">Think of clay and silt particles in soil as tiny magnets. Certain types of organic carbon — mostly small, broken-down molecules produced by soil microbes — stick to the surfaces of these mineral particles. Once stuck, they become chemically protected and very hard to break down. This is mineral-associated organic carbon, or MAOC.</p>
+            <p style="margin-top:8px;">MAOC is the <em>durable</em> fraction of soil carbon. It can persist in soil for decades to centuries — on average around 200 years, though this varies widely by soil type and climate. When carbon credit schemes say they are "sequestering carbon," the most valuable portion is MAOC, because it is genuinely long-lived. The downside is that mineral surfaces have a finite number of binding sites — once they are full, no more MAOC can form. This is the saturation limit that the Breure et al. slider in this tool reflects.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-item" style="padding:12px 0;font-size:14px;font-weight:500;color:var(--text);display:flex;justify-content:space-between;align-items:center;">
+            What is POC — particulate organic carbon?
+            <span style="font-family:var(--mono);font-size:.75rem;color:var(--text3);">+</span>
+          </summary>
+          <div style="padding:0 0 16px 0;font-size:14px;color:var(--text2);line-height:1.8;">
+            <p style="margin-top:10px;">Not all organic carbon sticks to mineral surfaces. Larger pieces — fragments of roots, leaves, and fungal material — sit loosely in the soil without that chemical protection. This is particulate organic carbon, or POC.</p>
+            <p style="margin-top:8px;">POC is the <em>temporary</em> fraction. It is actively being broken down by soil microbes, which use it as food and release the carbon back to the atmosphere as CO₂. On average it lasts around 5–20 years before decomposing, though some studies suggest it can persist longer in cold or wet soils. Because it is loosely held, it is also the first carbon to be lost when soils are disturbed — by tillage, drought, or a change in management.</p>
+            <p style="margin-top:8px;">The key insight of this tool: most carbon accounting schemes credit POC and MAOC equally. But if POC is gone in 10 years, claiming a 100-year credit for it overstates the climate benefit.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-item" style="padding:12px 0;font-size:14px;font-weight:500;color:var(--text);display:flex;justify-content:space-between;align-items:center;">
+            What is mean residence time (MRT)?
+            <span style="font-family:var(--mono);font-size:.75rem;color:var(--text3);">+</span>
+          </summary>
+          <div style="padding:0 0 16px 0;font-size:14px;color:var(--text2);line-height:1.8;">
+            <p style="margin-top:10px;">Mean residence time is simply the average length of time a carbon atom spends in a given pool before it is released back to the atmosphere. Think of it like an average stay in a hotel — some guests check out after one night, some stay for months, and MRT is the average across all guests.</p>
+            <p style="margin-top:8px;">For POC, MRT is estimated at roughly 5–20 years — short stays. For MAOC, MRT is estimated at 45–383 years depending on soil type, climate, and depth — long stays. These ranges are uncertain, which is why this tool has sliders for both.</p>
+            <p style="margin-top:8px;">MRT matters for carbon accounting because a tonne of carbon stored for 10 years does not have the same climate value as a tonne stored for 200 years. Tonne-year accounting (used by CAR SEP and this tool's LSR pool-weighted scenario) adjusts for this by only crediting the fraction of storage that is actually durable relative to the accounting horizon.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-item" style="padding:12px 0;font-size:14px;font-weight:500;color:var(--text);display:flex;justify-content:space-between;align-items:center;">
+            What is MAOC saturation and why does it matter?
+            <span style="font-family:var(--mono);font-size:.75rem;color:var(--text3);">+</span>
+          </summary>
+          <div style="padding:0 0 16px 0;font-size:14px;color:var(--text2);line-height:1.8;">
+            <p style="margin-top:10px;">Mineral surfaces can only hold so much carbon — they have a finite number of binding sites. When those sites are full, no new MAOC can form. The soil is said to be at MAOC saturation. Any additional organic carbon inputs at that point go into POC instead, where they are short-lived and vulnerable to loss.</p>
+            <p style="margin-top:8px;">Breure et al. (2025) mapped this saturation level across EU and UK agricultural soils. They found that the average MAOC saturation across European agricultural soils is around 68%. Soils above this threshold — common in cool, humid regions like northern England and Scotland — are at higher risk: not only are their MAOC pools near full, but they are also more likely to be losing carbon overall.</p>
+            <p style="margin-top:8px;">For this tool, saturation matters because a farm claiming MAOC sequestration on already-saturated soils may be overstating the amount of new carbon that can actually be durably stored. The Breure saturation slider lets you explore how much this changes the inventory number.</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-item" style="padding:12px 0;font-size:14px;font-weight:500;color:var(--text);display:flex;justify-content:space-between;align-items:center;">
+            What is the difference between a carbon credit and an inventory entry?
+            <span style="font-family:var(--mono);font-size:.75rem;color:var(--text3);">+</span>
+          </summary>
+          <div style="padding:0 0 16px 0;font-size:14px;color:var(--text2);line-height:1.8;">
+            <p style="margin-top:10px;">A <strong>carbon credit</strong> is a tradeable instrument issued by a registry (like Verra or CAR). One credit represents one tonne of CO₂ reduced or removed, verified against a specific protocol. Credits can be bought and sold, and companies use them to offset emissions they cannot reduce elsewhere.</p>
+            <p style="margin-top:8px;">A <strong>GHG inventory entry</strong> is different. It is an accounting record in a company's greenhouse gas report. Under the GHG Protocol LSR Standard, companies report land-based carbon removals as a stock-change: they measure the soil carbon at two points in time and report the difference. There is no registry, no tradeable credit, no buffer pool. If the carbon is lost in a future year, it is reported as a positive emission in that year.</p>
+            <p style="margin-top:8px;">The same tonne of soil carbon can appear in both — as a credit sold through Verra, and as a removal in the buyer's GHG inventory. But the numbers are calculated differently, and the permanence obligations are different. This tool shows all three side by side so you can see the gap.</p>
+          </div>
+        </details>
+
+      </div>
+      </details>
+    </div>
+
+    <!-- WORKED EXAMPLE -->
+    <div class="section-fold" id="fold-example">
+      <div class="section-fold-header" onclick="toggleFold('fold-example')">
+        <span class="section-fold-label">Worked example — First Milk dairy</span>
+        <span class="section-fold-plus">+</span>
+      </div>
+      <div class="section-fold-body">
+
+      <div style="font-size:.82rem;color:var(--text2);line-height:1.75;margin-bottom:1.25rem;max-width:720px;">
+        <p>AgriCarbon and 8point9 published a life cycle assessment of First Milk dairy showing a net emission of <strong>+0.07 kg CO&#x2082;e per litre of milk</strong> — a figure positioned as near-net-zero dairy. This is the tonne-tonne number: gross emissions minus the full claimed sequestration, with no adjustment for how long that sequestered carbon will actually stay in the soil. The worked example below applies this tool&#x2019;s three accounting frameworks to those published figures using central parameter assumptions. The aim is not to dispute the underlying measurements, but to show what the same number looks like under different accounting rules.</p>
+      </div>
+
+      <div style="font-family:var(--mono);font-size:.63rem;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.5rem;">Step 1 &#x2014; Published inputs (taken at face value)</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:1.5rem;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:7px 12px;font-family:var(--mono);font-size:.65rem;font-weight:500;border:1px solid var(--border);">Parameter</th>
+          <th style="text-align:right;padding:7px 12px;font-family:var(--mono);font-size:.65rem;font-weight:500;border:1px solid var(--border);">Value</th>
+          <th style="text-align:left;padding:7px 12px;font-family:var(--mono);font-size:.65rem;font-weight:500;border:1px solid var(--border);">Source</th>
+        </tr></thead>
+        <tbody>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">Gross emissions</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--red);">+1.15 kg CO&#x2082;e / litre</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">First Milk LCA [9]</td></tr>
+          <tr style="background:var(--border);opacity:.3;height:1px;"><td colspan="3"></td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">Claimed sequestration</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--green);">&#x2212;1.08 kg CO&#x2082;e / litre</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">First Milk LCA [9]</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">Claimed net (tonne-tonne)</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);font-weight:500;">+0.07 kg CO&#x2082;e / litre</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">gross &#x2212; seq</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">Conventional dairy</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--red);">+1.15 kg CO&#x2082;e / litre</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">industry average</td></tr>
+        </tbody>
+      </table>
+
+      <div style="font-family:var(--mono);font-size:.63rem;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.5rem;">Step 2 &#x2014; Central parameter assumptions</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:.75rem;">
+        <thead><tr>
+          <th style="text-align:left;padding:7px 12px;font-family:var(--mono);font-size:.65rem;font-weight:500;border:1px solid var(--border);">Parameter</th>
+          <th style="text-align:right;padding:7px 12px;font-family:var(--mono);font-size:.65rem;font-weight:500;border:1px solid var(--border);">Value used</th>
+          <th style="text-align:left;padding:7px 12px;font-family:var(--mono);font-size:.65rem;font-weight:500;border:1px solid var(--border);">Basis</th>
+        </tr></thead>
+        <tbody>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">MAOC accrual fraction</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);">63% MAOC / 37% POC</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">Prairie et al. (2023), base MAOC 85%</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">POC mean residence time</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);">10 years</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">Lavallee et al. (2020), central</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">MAOC mean residence time</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);">200 years</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">Lavallee et al. (2020), central</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">Accounting horizon</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);">100 years</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">CAR SEP default; IPCC standard</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">MAOC saturation (LSR only)</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);">60% / 80% (UK HR class)</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">Breure et al. (2025), EU median 68%</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">Verra buffer pool</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);">15%</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">VM0042 typical range 10&#x2013;20%</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:.72rem;color:var(--text3);font-style:italic;margin-bottom:1.5rem;line-height:1.6;">Prairie et al. (2023) covers cropland systems &#x2014; application to permanent pasture is an extrapolation. MRT ranges carry substantial uncertainty; use the sliders to explore pessimistic (POC 5yr / MAOC 45yr) and optimistic (POC 20yr / MAOC 383yr) bounds.</div>
+
+      <div style="font-family:var(--mono);font-size:.63rem;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.5rem;">Step 3 &#x2014; Calculation walkthrough</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem;">
+
+        <div style="border:1px solid var(--car);overflow:hidden;">
+          <div style="background:var(--car-dim);padding:8px 14px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+            <span style="font-family:var(--mono);font-size:.65rem;font-weight:500;color:var(--car);letter-spacing:.06em;text-transform:uppercase;">CAR SEP v1.1 &#x2014; tonne-year</span>
+            <span style="font-family:var(--mono);font-size:.65rem;color:var(--car);">credit issuance</span>
+          </div>
+          <div style="padding:12px 14px;background:var(--bg);">
+            <div style="font-family:var(--mono);font-size:.73rem;color:var(--text);line-height:2;margin-bottom:8px;background:var(--green-dim);padding:10px 12px;">
+              POC factor &nbsp;&nbsp;= min(10 &#xF7; 100, 1) = <strong>0.10</strong><br>
+              MAOC factor = min(200 &#xF7; 100, 1) = <strong>1.00</strong> &nbsp;(capped &#x2014; MRT exceeds horizon)<br>
+              Credit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 1.08 &#xD7; (0.37 &#xD7; 0.10 + 0.63 &#xD7; 1.00) = 1.08 &#xD7; 0.667 = <strong>0.720</strong><br>
+              Net &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 1.15 &#x2212; 0.720 = <strong style="color:var(--red);">+0.43 kg CO&#x2082;e / litre</strong>
+            </div>
+            <p style="font-size:.78rem;color:var(--text2);line-height:1.7;">The POC fraction (37%) receives only 10% credit because it will cycle out of the soil within roughly 10 years &#x2014; well within the 100-year horizon. MAOC (63%) receives full credit because its 200-year residence time exceeds the horizon. The near-net-zero claim does not survive this adjustment.</p>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--verra);overflow:hidden;">
+          <div style="background:var(--verra-dim);padding:8px 14px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+            <span style="font-family:var(--mono);font-size:.65rem;font-weight:500;color:var(--verra);letter-spacing:.06em;text-transform:uppercase;">Verra VM0042 &#x2014; tonne-tonne + buffer</span>
+            <span style="font-family:var(--mono);font-size:.65rem;color:var(--verra);">credit issuance</span>
+          </div>
+          <div style="padding:12px 14px;background:var(--bg);">
+            <div style="font-family:var(--mono);font-size:.73rem;color:var(--text);line-height:2;margin-bottom:8px;background:var(--verra-dim);padding:10px 12px;">
+              Buffer withheld = 1.08 &#xD7; 15% = <strong>0.162</strong> &nbsp;(held against reversal risk)<br>
+              Credit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 1.08 &#xD7; (1 &#x2212; 0.15) = 1.08 &#xD7; 0.85 = <strong>0.918</strong><br>
+              Net &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 1.15 &#x2212; 0.918 = <strong style="color:var(--red);">+0.23 kg CO&#x2082;e / litre</strong>
+            </div>
+            <p style="font-size:.78rem;color:var(--text2);line-height:1.7;">Verra credits the full verified SOC gain but withholds 15% to a pooled buffer account as insurance against future reversals. No pool-specific MRT adjustment is made &#x2014; all sequestration is treated as equally permanent once verified.</p>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--lsr);overflow:hidden;">
+          <div style="background:var(--lsr-dim);padding:8px 14px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+            <span style="font-family:var(--mono);font-size:.65rem;font-weight:500;color:var(--lsr);letter-spacing:.06em;text-transform:uppercase;">GHG Protocol LSR &#x2014; inventory</span>
+            <span style="font-family:var(--mono);font-size:.65rem;color:var(--lsr);">corporate inventory &#xB7; not credit issuance</span>
+          </div>
+          <div style="padding:12px 14px;background:var(--bg);">
+            <div style="font-family:var(--mono);font-size:.73rem;color:var(--text);line-height:2;margin-bottom:8px;background:var(--lsr-dim);padding:10px 12px;">
+              <span style="color:var(--lsr);">Full delta, sat=60% (below EU median &#x2014; pre-conservativeness ceiling):</span><br>
+              &nbsp;&nbsp;Eff. seq = 1.08 &#xD7; 63% &#xD7; (1 &#x2212; 0%) = <strong>0.680</strong> &nbsp;&#x2192; Net = <strong style="color:var(--red);">+0.47</strong><br><br>
+              <span style="color:var(--lsr);">Full delta, sat=80% (UK cool-humid HR class &#x2014; Breure et al. 2025):</span><br>
+              &nbsp;&nbsp;Sat. discount = (80 &#x2212; 68) &#xF7; 32 = <strong>37.5%</strong><br>
+              &nbsp;&nbsp;Eff. seq = 1.08 &#xD7; 63% &#xD7; (1 &#x2212; 0.375) = <strong>0.425</strong> &nbsp;&#x2192; Net = <strong style="color:var(--red);">+0.72</strong><br><br>
+              <span style="color:var(--lsr);">Pool-weighted / conservative (same formula as CAR):</span><br>
+              &nbsp;&nbsp;Net = <strong style="color:var(--red);">+0.43 kg CO&#x2082;e / litre</strong>
+            </div>
+            <p style="font-size:.78rem;color:var(--text2);line-height:1.7;">Under LSR Requirement 2, estimates must not overstate removals. POC is excluded from the creditable fraction as too short-lived to qualify as a durable removal. The MAOC fraction is further discounted if soils are near saturation.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="font-family:var(--mono);font-size:.63rem;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.5rem;">Step 4 &#x2014; Results summary</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:.75rem;">
+        <thead><tr>
+          <th style="text-align:left;padding:7px 12px;font-family:var(--mono);font-size:.65rem;font-weight:500;border:1px solid var(--border);">Scenario</th>
+          <th style="text-align:right;padding:7px 12px;font-family:var(--mono);font-size:.65rem;font-weight:500;border:1px solid var(--border);">Net (kg CO&#x2082;e / litre)</th>
+          <th style="text-align:right;padding:7px 12px;font-family:var(--mono);font-size:.65rem;font-weight:500;border:1px solid var(--border);">vs claimed +0.07</th>
+          <th style="text-align:right;padding:7px 12px;font-family:var(--mono);font-size:.65rem;font-weight:500;border:1px solid var(--border);">vs conv. +1.15</th>
+        </tr></thead>
+        <tbody>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">Claimed (tonne-tonne)</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);font-weight:500;">+0.07</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--text3);">baseline</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--green);">&#x2212;94%</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">CAR SEP v1.1 tonne-year</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--red);font-weight:500;">+0.43</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--red);">+514%</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--green);">&#x2212;63%</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">Verra VM0042 (15% buffer)</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--red);font-weight:500;">+0.23</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--red);">+229%</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--green);">&#x2212;80%</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">LSR full delta (sat=60%)</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--red);font-weight:500;">+0.47</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--red);">+571%</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--green);">&#x2212;59%</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">LSR full delta (sat=80%, UK HR)</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--red);font-weight:500;">+0.72</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--red);">+935%</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--green);">&#x2212;37%</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">LSR pool-weighted (conservative)</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--red);font-weight:500;">+0.43</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--red);">+514%</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--green);">&#x2212;63%</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">Conventional dairy</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--red);">+1.15</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--red);">+1,543%</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;color:var(--text3);">baseline</td></tr>
+        </tbody>
+      </table>
+
+      <div style="border-left:2px solid var(--lsr);padding:12px 16px;font-size:.78rem;color:var(--text2);line-height:1.75;margin-bottom:1.5rem;">
+        <strong style="color:var(--text);">What the numbers say.</strong> The sequestration is real and the management improvement is substantial &#x2014; First Milk dairy performs 37&#x2013;63% below conventional dairy across all scenarios. The near-net-zero claim, however, depends on crediting the full claimed sequestration with no permanence adjustment. Under every framework in this tool the net is positive and well above +0.07. The gap between +0.07 (claimed) and +0.43 (CAR central) is not a measurement dispute &#x2014; it is an accounting choice about how long the stored carbon is assumed to persist.
+      </div>
+      </div>
+    </div>
+
+    <!-- REFERENCES -->
+    <div class="section-fold" id="fold-refs">
+      <div class="section-fold-header" onclick="toggleFold('fold-refs')">
+        <span class="section-fold-label">References</span>
+        <span class="section-fold-plus">+</span>
+      </div>
+      <div class="section-fold-body">
+      <div class="refs-grid">
+        <div class="ref-num">[1]</div><div class="ref-text">Prairie, A.M., King, A.E. &amp; Cotrufo, M.F. (2023). Restoring particulate and mineral-associated organic carbon through regenerative agriculture. <em>PNAS</em>, 120(21). <a href="https://doi.org/10.1073/pnas.2217481120">doi.org/10.1073/pnas.2217481120</a></div>
+        <div class="ref-num">[2]</div><div class="ref-text">Minasny, B. &amp; McBratney, A.B. (2024). Soil carbon tonne-year accounting. <em>Geoderma</em>, 450, 117027. <a href="https://doi.org/10.1016/j.geoderma.2024.117027">doi.org/10.1016/j.geoderma.2024.117027</a></div>
+        <div class="ref-num">[3]</div><div class="ref-text">Lavallee, J.M., Soong, J.L. &amp; Cotrufo, M.F. (2020). Conceptualizing soil organic matter into particulate and mineral-associated forms. <em>Global Change Biology</em>, 26(1). <a href="https://doi.org/10.1111/gcb.14859">doi.org/10.1111/gcb.14859</a></div>
+        <div class="ref-num">[4]</div><div class="ref-text">Mosier, S. et al. (2021). Adaptive multi-paddock grazing enhances soil carbon. <em>Journal of Environmental Management</em>, 288. <a href="https://doi.org/10.1016/j.jenvman.2021.112409">doi.org/10.1016/j.jenvman.2021.112409</a></div>
+        <div class="ref-num">[5]</div><div class="ref-text">Chay, F. et al. (2022). Unpacking ton-year accounting. CarbonPlan. <a href="https://carbonplan.org/research/ton-year-explainer">carbonplan.org</a></div>
+        <div class="ref-num">[6]</div><div class="ref-text">Climate Action Reserve (2022). Soil Enrichment Protocol v1.1. <a href="https://www.climateactionreserve.org">climateactionreserve.org</a></div>
+        <div class="ref-num">[7]</div><div class="ref-text">Verra (2024). VM0042 Improved Agricultural Land Management v2.1. <a href="https://verra.org">verra.org</a></div>
+        <div class="ref-num">[8]</div><div class="ref-text">Thorbecke, M. &amp; Dettling, J. (2019). Carbon footprint of regenerative grazing at White Oak Pastures. Quantis.</div>
+        <div class="ref-num">[9]</div><div class="ref-text">8point9 / AgriCarbon (2025). First Milk testing proves soil carbon is the key to net zero dairy. <a href="https://8point9.com">8point9.com</a></div>
+        <div class="ref-num">[10]</div><div class="ref-text">GHG Protocol (2026). Land Sector and Removals Standard v1.0. <a href="https://ghgprotocol.org/land-sector-and-removals-standard">ghgprotocol.org</a></div>
+        <div class="ref-num">[11]</div><div class="ref-text">Carter, N. (2021). Another failed attempt to greenwash beef. <em>Sentient Media</em>.</div>
+        <div class="ref-num">[12]</div><div class="ref-text">Breure, T.S. et al. (2025). Revisiting the soil carbon saturation concept. <em>Nature Communications</em>, 16, 2637. <a href="https://doi.org/10.1038/s41467-025-57355-y">doi.org/10.1038/s41467-025-57355-y</a></div>
+      </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="scroll-indicator" id="scrollIndicator">SCROLL: 0.00</div>
+
+<footer class="site-footer">
+  <div>
+    <div class="footer-col-label">Contact</div>
+    <div class="footer-col-val"><a href="mailto:hello@accruedcarbon.com">hello@accruedcarbon.com</a></div>
+  </div>
+  <div>
+    <div class="footer-col-label">Site</div>
+    <div class="footer-col-val"><a href="/">accruedcarbon.com</a></div>
+  </div>
+  <div>
+    <div class="footer-col-label">Status</div>
+    <div class="footer-col-val">Draft for discussion — not for citation.</div>
+  </div>
+</footer>
+
+<script>
+const SYSTEMS = {
+  wop: { gross:35.2, seq:39.0, claimed:-3.50, conv:33.0, defMaoc:63, unit:'kg CO2e / kg beef', name:'WOP beef' },
+  fm:  { gross:1.15, seq:1.08,  claimed:0.07,  conv:1.15, defMaoc:63, unit:'kg CO2e / litre milk', name:'First Milk dairy' }
+};
+
+let curSys = 'fm';
+let curMeth = 'car';
+let lsrView = 'a'; // 'a', 'b', or 'both'
+let mainChart, sensChart, horizChart;
+
+function fmt(v,d=2){return(v>0?'+':'')+v.toFixed(d);}
+
+function computeNetLsrA(sys, maoc_f, poc_f, saturation) {
+  const sat = saturation || 60;
+  let satDiscount = 0;
+  if (sat > 68) {
+    satDiscount = Math.min((sat - 68) / 32, 1);
+  }
+  const effectiveSeq = sys.seq * maoc_f * (1 - satDiscount);
+  return sys.gross - effectiveSeq;
+}
+
+function computeNetLsrB(sys, maoc_f, poc_f, poc_mrt, maoc_mrt, horizon) {
+  const poc_factor = Math.min(poc_mrt / horizon, 1);
+  const maoc_factor = Math.min(maoc_mrt / horizon, 1);
+  const credit = sys.seq * (poc_f * poc_factor + maoc_f * maoc_factor);
+  return sys.gross - credit;
+}
+
+function computeNet(sys, maoc_f, poc_f, poc_mrt, maoc_mrt, horizon, meth, carRate, buffer, lsrWindow, saturation) {
+  if (meth === 'car') {
+    const poc_factor = Math.min(poc_mrt / horizon, 1);
+    const maoc_factor = Math.min(maoc_mrt / horizon, 1);
+    const credit = sys.seq * (poc_f * poc_factor + maoc_f * maoc_factor);
+    return sys.gross - credit;
+  } else if (meth === 'verra') {
+    return sys.gross - sys.seq * (1 - buffer / 100);
+  } else {
+    if (lsrView === 'b') return computeNetLsrB(sys, maoc_f, poc_f, poc_mrt, maoc_mrt, horizon);
+    return computeNetLsrA(sys, maoc_f, poc_f, saturation || 60);
+  }
+}
+
+function computeCredit(sys, maoc_f, poc_f, poc_mrt, maoc_mrt, horizon, meth, carRate, buffer, lsrWindow, saturation) {
+  if (meth === 'car') {
+    const poc_factor = Math.min(poc_mrt / horizon, 1);
+    const maoc_factor = Math.min(maoc_mrt / horizon, 1);
+    return sys.seq * (poc_f * poc_factor + maoc_f * maoc_factor);
+  } else if (meth === 'verra') {
+    return sys.seq * (1 - buffer / 100);
+  } else {
+    if (lsrView === 'b') return sys.seq * (Math.min(poc_mrt/horizon,1)*poc_f + Math.min(maoc_mrt/horizon,1)*maoc_f);
+    const sat = saturation || 60;
+    const satDiscount = sat > 68 ? Math.min((sat - 68) / 32, 1) : 0;
+    return sys.seq * maoc_f * (1 - satDiscount);
+  }
+}
+
+function getParams() {
+  return {
+    maoc_f: parseFloat(document.getElementById('sl-maoc').value) / 100,
+    poc_mrt: parseFloat(document.getElementById('sl-poc-mrt').value),
+    maoc_mrt: parseFloat(document.getElementById('sl-maoc-mrt').value),
+    horizon: parseFloat(document.getElementById('sl-horizon').value),
+    carRate: parseFloat(document.getElementById('sl-car-rate').value),
+    buffer: parseFloat(document.getElementById('sl-buffer').value),
+    lsrWindow: parseFloat(document.getElementById('sl-lsr-window').value),
+    saturation: parseFloat(document.getElementById('sl-sat').value),
+  };
+}
+
+function onMaoc(v) {
+  v = parseInt(v);
+  document.getElementById('out-maoc').textContent = v + '%';
+  document.getElementById('split-maoc-bar').style.width = v + '%';
+  document.getElementById('maoc-pct').textContent = 'MAOC ' + v + '%';
+  document.getElementById('poc-pct').textContent = 'POC ' + (100 - v) + '%';
+  update();
+}
+
+function setPreset(maocPct, src) {
+  document.getElementById('sl-maoc').value = maocPct;
+  onMaoc(maocPct);
+  document.getElementById('split-source').textContent = src;
+}
+
+function switchSys(key, btn) {
+  curSys = key;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-sys'));
+  btn.classList.add('active-sys');
+  const sys = SYSTEMS[key];
+  document.getElementById('sl-maoc').value = sys.defMaoc;
+  onMaoc(sys.defMaoc);
+  update();
+}
+
+function setLsrView(v) {
+  lsrView = v;
+  document.getElementById('lsr-opt-a').className = 'lsr-opt' + (v==='a' ? ' active-a' : '');
+  document.getElementById('lsr-opt-b').className = 'lsr-opt' + (v==='b' ? ' active-b' : '');
+  document.getElementById('lsr-opt-both').className = 'lsr-opt' + (v==='both' ? ' active-both' : '');
+
+  if (v==='a') {
+    document.getElementById('lsr-note-a-text').style.display = '';
+    document.getElementById('lsr-note-b-text').style.display = 'none';
+    document.getElementById('lsr-note-both-text').style.display = 'none';
+  } else if (v==='b') {
+    document.getElementById('lsr-note-a-text').style.display = 'none';
+    document.getElementById('lsr-note-b-text').style.display = '';
+    document.getElementById('lsr-note-both-text').style.display = 'none';
+  } else {
+    document.getElementById('lsr-note-a-text').style.display = 'none';
+    document.getElementById('lsr-note-b-text').style.display = 'none';
+    document.getElementById('lsr-note-both-text').style.display = '';
+  }
+
+  document.getElementById('sl-maoc').disabled = false;
+  document.getElementById('sl-poc-mrt').disabled = false;
+  document.getElementById('sl-maoc-mrt').disabled = false;
+  document.getElementById('sl-horizon').disabled = false;
+  document.getElementById('sl-base-maoc').disabled = false;
+
+  document.getElementById('prairie-lsr-note').style.display = (v === 'a') ? '' : 'none';
+
+  document.getElementById('leg-lsr-a').style.display = (v==='a'||v==='both') ? '' : 'none';
+  document.getElementById('leg-lsr-b').style.display = (v==='b'||v==='both') ? '' : 'none';
+  document.getElementById('leg-method').style.display = 'none';
+
+  document.getElementById('metric-lsr-b').style.display = (v==='both') ? '' : 'none';
+
+  document.getElementById('meth-label-sm').textContent = v==='a' ? 'LSR full delta' : v==='b' ? 'LSR pool-weighted' : 'LSR full delta';
+
+  document.getElementById('horizon-lbl').textContent = 'Time horizon';
+
+  update();
+}
+
+function switchMeth(meth) {
+  curMeth = meth;
+  const isCar = meth === 'car';
+  const isVerra = meth === 'verra';
+  const isLsr = meth === 'lsr';
+
+  // accordion open/close
+  ['car','verra','lsr'].forEach(m => {
+    const item = document.getElementById('mi-' + m);
+    const plus = document.getElementById('mp-' + m);
+    const body = item ? item.querySelector('.meth-body') : null;
+    const isOpen = m === meth;
+    if (item) item.classList.toggle('open', isOpen);
+    if (plus) plus.textContent = isOpen ? '×' : '+';
+    if (body) body.style.display = isOpen ? '' : 'none';
+  });
+
+  document.getElementById('car-rate-row').style.display = isCar ? '' : 'none';
+  document.getElementById('verra-buffer-row').style.display = isVerra ? '' : 'none';
+  document.getElementById('lsr-window-row').style.display = isLsr ? '' : 'none';
+
+  document.getElementById('car-note-box').style.display = isCar ? '' : 'none';
+  document.getElementById('verra-note-box').style.display = isVerra ? '' : 'none';
+  document.getElementById('lsr-note-box').style.display = isLsr ? '' : 'none';
+
+  document.getElementById('leg-method').style.display = isLsr ? 'none' : '';
+  document.getElementById('leg-lsr-a').style.display = 'none';
+  document.getElementById('leg-lsr-b').style.display = 'none';
+  document.getElementById('prairie-lsr-note').style.display = 'none';
+
+  document.getElementById('metric-lsr-b').style.display = 'none';
+
+  if (isLsr) {
+    setLsrView(lsrView);
+    return;
+  }
+
+  document.getElementById('meth-label-sm').textContent = isCar ? 'CAR' : 'Verra';
+  const disableMRT = !isCar;
+  document.getElementById('sl-maoc').disabled = disableMRT;
+  document.getElementById('sl-poc-mrt').disabled = disableMRT;
+  document.getElementById('sl-maoc-mrt').disabled = disableMRT;
+  document.getElementById('sl-horizon').disabled = disableMRT;
+  document.getElementById('sl-base-maoc').disabled = disableMRT;
+  document.getElementById('horizon-lbl').textContent = isCar ? 'Time horizon' : 'Time horizon (fixed)';
+
+  const sq = document.getElementById('leg-method-sq');
+  const lbl = document.getElementById('leg-method-lbl');
+  sq.style.background = isCar ? '#7eb36a' : '#bc85d9';
+  lbl.textContent = isCar ? 'CAR tonne-year adjusted' : 'Verra tonne-tonne adjusted';
+
+  update();
+}
+
+function resetDefaults() {
+  const sys = SYSTEMS[curSys];
+  document.getElementById('sl-base-maoc').value = 80;
+  document.getElementById('out-base-maoc').textContent = '80%';
+  recomputeSplit(80);
+  document.getElementById('sl-poc-mrt').value = 10;
+  document.getElementById('sl-maoc-mrt').value = 200;
+  document.getElementById('sl-horizon').value = 100;
+  document.getElementById('sl-car-rate').value = 1;
+  document.getElementById('sl-buffer').value = 15;
+  update();
+}
+
+function onBaseStock(v) {
+  v = parseInt(v);
+  document.getElementById('out-base-maoc').textContent = v + '%';
+  recomputeSplit(v);
+  update();
+}
+
+function recomputeSplit(baseMaoc) {
+  const basePoc = 100 - baseMaoc;
+  const NT_poc_pct = 19.7, NT_maoc_pct = 8.5;
+  const CI_poc_pct = 33.3, CI_maoc_pct = 7.1;
+  const nt_dpoc = basePoc * NT_poc_pct / 100;
+  const nt_dmaoc = baseMaoc * NT_maoc_pct / 100;
+  const ci_dpoc = basePoc * CI_poc_pct / 100;
+  const ci_dmaoc = baseMaoc * CI_maoc_pct / 100;
+  const avg_poc = (nt_dpoc + ci_dpoc) / 2;
+  const avg_maoc = (nt_dmaoc + ci_dmaoc) / 2;
+  const total = avg_poc + avg_maoc;
+  const maoc_pct = Math.round(avg_maoc / total * 100);
+  document.getElementById('sl-maoc').value = maoc_pct;
+  document.getElementById('out-maoc').textContent = maoc_pct + '%';
+  document.getElementById('split-maoc-bar').style.width = maoc_pct + '%';
+  document.getElementById('maoc-pct').textContent = 'MAOC ' + maoc_pct + '%';
+  document.getElementById('poc-pct').textContent = 'POC ' + (100 - maoc_pct) + '%';
+  const nt_poc_split = Math.round(nt_dpoc/(nt_dpoc+nt_dmaoc)*100);
+  const ci_poc_split = Math.round(ci_dpoc/(ci_dpoc+ci_dmaoc)*100);
+  document.getElementById('split-source').textContent =
+    'Prairie et al. 2023 | Base MAOC ' + baseMaoc + '% | NT: ' + nt_poc_split + '/' + (100-nt_poc_split) + ' POC/MAOC | CI: ' + ci_poc_split + '/' + (100-ci_poc_split) + ' POC/MAOC | Avg: ' + (100-maoc_pct) + '/' + maoc_pct;
+}
+
+function onSaturation(val) {
+  val = parseFloat(val);
+  document.getElementById('out-sat').textContent = val + '%';
+
+  let riskClass, riskLabel, riskDesc;
+  if (val >= 68) {
+    riskClass = 'HR'; riskLabel = 'High Risk / No Hazard zone';
+    riskDesc = 'Above EU median saturation (68%). MAOC near effective capacity. SOC changes will determine HR (losing C) or NH (gaining C). Either way, new inputs route preferentially to POC.';
+  } else {
+    riskClass = 'NR'; riskLabel = 'No Risk / High Hazard zone';
+    riskDesc = 'Below EU median saturation (68%). MAOC capacity available. Soils can efficiently stabilise new carbon as MAOC. SOC changes determine NR (accrual) or HH (losing C despite capacity).';
+  }
+
+  const el = document.getElementById('breure-risk-label');
+  el.innerHTML = riskLabel + ' <span class="risk-badge risk-' + riskClass + '">' + riskClass + '</span>';
+  document.getElementById('breure-risk-desc').textContent = riskDesc;
+
+  document.getElementById('sat-warning-low').style.display = val < 68 ? '' : 'none';
+  document.getElementById('sat-warning-high').style.display = val >= 68 ? '' : 'none';
+
+  let adjDesc;
+  if (val < 68) {
+    adjDesc = 'No saturation discount — MAOC capacity available. Effective seq = seq × MAOC% (Prairie split applies, POC excluded as non-durable).';
+  } else {
+    const excessSat = (val - 68) / (100 - 68);
+    const currentBase = parseFloat(document.getElementById('sl-base-maoc').value);
+    const compression = Math.round(excessSat * 20);
+    const adjustedBase = Math.max(60, currentBase - compression);
+    const satDiscount = Math.round(excessSat * 100);
+    adjDesc = 'Sat ' + Math.round(val) + '% → saturation discount ' + satDiscount + '% on MAOC portion. Effective seq = seq × MAOC% × (1 − ' + (satDiscount/100).toFixed(2) + '). Base MAOC compressed by ' + compression + 'pp to ' + adjustedBase + '%.';
+    document.getElementById('sl-base-maoc').value = adjustedBase;
+    onBaseStock(adjustedBase);
+  }
+  document.getElementById('breure-adj-desc').textContent = adjDesc;
+  update();
+}
+
+function setBreure(satVal) {
+  document.getElementById('sl-sat').value = satVal;
+  onSaturation(satVal);
+}
+
+function update() {
+  const p = getParams();
+  const poc_f = 1 - p.maoc_f;
+  const sys = SYSTEMS[curSys];
+
+  document.getElementById('out-poc-mrt').textContent = p.poc_mrt + ' yr';
+  document.getElementById('out-maoc-mrt').textContent = p.maoc_mrt + ' yr';
+  document.getElementById('out-horizon').textContent = p.horizon + ' yr';
+  document.getElementById('out-car-rate').textContent = p.carRate.toFixed(1) + '%/yr';
+  document.getElementById('out-buffer').textContent = p.buffer + '%';
+  document.getElementById('out-lsr-window').textContent = p.lsrWindow + ' yr';
+
+  const net = computeNet(sys, p.maoc_f, poc_f, p.poc_mrt, p.maoc_mrt, p.horizon, curMeth, p.carRate, p.buffer, p.lsrWindow, p.saturation);
+  const credit = computeCredit(sys, p.maoc_f, poc_f, p.poc_mrt, p.maoc_mrt, p.horizon, curMeth, p.carRate, p.buffer, p.lsrWindow, p.saturation);
+  const netR = parseFloat(net.toFixed(2));
+
+  const lsrANet = curMeth === 'lsr' ? parseFloat(computeNetLsrA(sys, p.maoc_f, poc_f, p.saturation).toFixed(2)) : null;
+  const lsrBNet = curMeth === 'lsr' ? parseFloat(computeNetLsrB(sys, p.maoc_f, poc_f, p.poc_mrt, p.maoc_mrt, p.horizon).toFixed(2)) : null;
+
+  const displayNet = curMeth === 'lsr'
+    ? (lsrView === 'b' ? lsrBNet : lsrANet)
+    : netR;
+  const over = Math.abs(displayNet - sys.claimed) / Math.abs(sys.claimed) * 100;
+  const vsConv = (sys.conv - displayNet) / sys.conv * 100;
+
+  const tyEl = document.getElementById('ty-net');
+  tyEl.textContent = fmt(displayNet);
+  tyEl.className = 'm-val ' + (displayNet <= 0 ? 'm-neg' : 'm-pos');
+
+  if (curMeth === 'lsr' && lsrView === 'both') {
+    const lsrBEl = document.getElementById('lsr-b-net');
+    lsrBEl.textContent = fmt(lsrBNet);
+    lsrBEl.className = 'm-val ' + (lsrBNet <= 0 ? 'm-neg' : 'm-pos');
+    document.getElementById('lsr-b-unit').textContent = sys.unit;
+  }
+
+  const ttEl = document.getElementById('tt-net');
+  ttEl.textContent = fmt(sys.claimed);
+  ttEl.className = 'm-val ' + (sys.claimed <= 0 ? 'm-neg' : 'm-pos');
+
+  document.getElementById('ty-unit').textContent = sys.unit;
+  document.getElementById('tt-unit').textContent = sys.unit;
+  document.getElementById('overstate').textContent = '↑ ' + Math.round(over) + '%';
+  document.getElementById('overstate-fill').style.width = Math.min(over / 10, 100) + '%';
+
+  const vsEl = document.getElementById('vs-conv');
+  vsEl.className = 'm-val ' + (vsConv > 0 ? 'm-neg' : 'm-pos');
+  document.getElementById('vs-conv-arrow').textContent = vsConv > 0 ? '↓' : '↑';
+  document.getElementById('vs-conv-num').textContent = Math.abs(vsConv).toFixed(1) + '%';
+  document.getElementById('conv-ref').textContent = 'vs ' + sys.conv + ' conventional';
+
+  document.getElementById('ref-claimed').textContent = fmt(sys.claimed);
+  document.getElementById('ref-conv').textContent = fmt(sys.conv);
+  document.getElementById('ref-gross').textContent = fmt(sys.gross);
+  document.getElementById('ref-seq').textContent = fmt(-sys.seq);
+  document.getElementById('ref-credit').textContent = fmt(-credit);
+
+  let methLabel, noteDetail;
+  if (curMeth === 'car') {
+    methLabel = 'CAR SEP tonne-year';
+    noteDetail = ' | MAOC ' + Math.round(p.maoc_f*100) + '% / POC ' + Math.round(poc_f*100) + '% | POC MRT ' + p.poc_mrt + 'yr | MAOC MRT ' + p.maoc_mrt + 'yr | Horizon ' + p.horizon + 'yr';
+  } else if (curMeth === 'verra') {
+    methLabel = 'Verra VM0042 tonne-tonne';
+    noteDetail = ' | Buffer ' + p.buffer + '% withheld | Full credit on remaining ' + (100 - p.buffer) + '%';
+  } else {
+    methLabel = 'GHG Protocol LSR v1.0 (eff. 2027)';
+    if (lsrView === 'a') noteDetail = ' | Full delta (upper bound) | gross − full seq | pre-conservativeness ceiling (likely fails LSR Req. 2 if taken at face value)';
+    else if (lsrView === 'b') noteDetail = ' | Pool-weighted conservative | MAOC ' + Math.round(p.maoc_f*100) + '% / POC ' + Math.round(poc_f*100) + '% | POC MRT ' + p.poc_mrt + 'yr | MAOC MRT ' + p.maoc_mrt + 'yr | MRT discount as conservativeness adjustment (Minasny & McBratney 2024)';
+    else noteDetail = ' | Full delta ' + fmt(lsrANet) + ' vs Pool-weighted ' + fmt(lsrBNet) + ' | gap = permanence cost of POC fraction';
+  }
+  document.getElementById('chart-note').textContent = sys.name + ' | ' + methLabel + noteDetail;
+
+  updateMainChart(netR, lsrANet, lsrBNet, sys);
+  updateSensChart(p, poc_f, sys);
+  updateHorizonChart(p, poc_f, sys);
+}
+
+const opts = { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, animation:{ duration:120 } };
+
+function updateMainChart(netR, lsrANet, lsrBNet, sys) {
+  let labels, values, colors;
+
+  if (curMeth === 'lsr') {
+    if (lsrView === 'a') {
+      labels = ['LSR: full delta\n(upper bound)', 'Claimed net', 'Conventional', 'Gross emissions'];
+      values = [lsrANet, sys.claimed, sys.conv, sys.gross];
+      colors = ['#64b9c4', '#ea9755', '#808080', '#85a2f7'];
+    } else if (lsrView === 'b') {
+      labels = ['LSR: pool-weighted\n(conservative)', 'Claimed net', 'Conventional', 'Gross emissions'];
+      values = [lsrBNet, sys.claimed, sys.conv, sys.gross];
+      colors = ['#7ac7d0', '#ea9755', '#808080', '#85a2f7'];
+    } else {
+      labels = ['LSR: full delta\n(upper bound)', 'LSR: pool-weighted\n(conservative)', 'Claimed net', 'Conventional', 'Gross emissions'];
+      values = [lsrANet, lsrBNet, sys.claimed, sys.conv, sys.gross];
+      colors = ['#64b9c4', '#7ac7d0', '#ea9755', '#808080', '#85a2f7'];
+    }
+  } else {
+    const methodColor = curMeth === 'car' ? '#7eb36a' : '#bc85d9';
+    const methodLabel = curMeth === 'car' ? 'CAR\ntonne-year' : 'Verra\ntonne-tonne';
+    labels = [methodLabel, 'Claimed net', 'Conventional', 'Gross emissions'];
+    values = [netR, sys.claimed, sys.conv, sys.gross];
+    colors = [methodColor, '#ea9755', '#808080', '#85a2f7'];
+  }
+
+  if (!mainChart) {
+    mainChart = new Chart(document.getElementById('main-chart'), {
+      type:'bar',
+      data:{ labels, datasets:[{ data:values, backgroundColor:colors, borderWidth:0, borderRadius:0 }] },
+      options:{ ...opts,
+        plugins:{ ...opts.plugins, tooltip:{ callbacks:{ label:c=>' '+fmt(c.raw) } } },
+        scales:{
+          x:{ grid:{display:false}, ticks:{color:'#808080',font:{size:12}} },
+          y:{ grid:{color:'rgba(185,185,187,0.15)'}, ticks:{color:'#808080',font:{size:12},callback:v=>fmt(v,1)},
+              title:{display:true,text:sys.unit,color:'#808080',font:{size:11}} }
+        }
+      }
+    });
+  } else {
+    mainChart.data.labels = labels;
+    mainChart.data.datasets[0].data = values;
+    mainChart.data.datasets[0].backgroundColor = colors;
+    mainChart.options.scales.y.title.text = sys.unit;
+    mainChart.update('none');
+  }
+}
+
+function netForMRT(maoc_mrt, p, poc_f, sys) {
+  if (curMeth === 'car') {
+    const pf = Math.min(p.poc_mrt/p.horizon,1);
+    const mf = Math.min(maoc_mrt/p.horizon,1);
+    return parseFloat((sys.gross - sys.seq*(poc_f*pf + p.maoc_f*mf)).toFixed(2));
+  } else if (curMeth === 'verra') {
+    return parseFloat((sys.gross - sys.seq*(1-p.buffer/100)).toFixed(2));
+  } else {
+    const pf = Math.min(p.poc_mrt/p.horizon,1);
+    const mf = Math.min(maoc_mrt/p.horizon,1);
+    return parseFloat((sys.gross - sys.seq*(poc_f*pf + p.maoc_f*mf)).toFixed(2));
+  }
+}
+
+function netForHorizon(horizon, p, poc_f, sys) {
+  if (curMeth === 'car') {
+    const pf = Math.min(p.poc_mrt/horizon,1);
+    const mf = Math.min(p.maoc_mrt/horizon,1);
+    return parseFloat((sys.gross - sys.seq*(poc_f*pf + p.maoc_f*mf)).toFixed(2));
+  } else if (curMeth === 'verra') {
+    return parseFloat((sys.gross - sys.seq*(1-p.buffer/100)).toFixed(2));
+  } else {
+    const pf = Math.min(p.poc_mrt/horizon,1);
+    const mf = Math.min(p.maoc_mrt/horizon,1);
+    return parseFloat((sys.gross - sys.seq*(poc_f*pf + p.maoc_f*mf)).toFixed(2));
+  }
+}
+
+function updateSensChart(p, poc_f, sys) {
+  const mrtVals = [];
+  for (let m=20; m<=500; m+=10) mrtVals.push(m);
+  const netVals = mrtVals.map(m => netForMRT(m, p, poc_f, sys));
+  const lsrAFlat = curMeth === 'lsr' ? parseFloat(computeNetLsrA(sys, p.maoc_f, poc_f, p.saturation).toFixed(2)) : null;
+
+  const lineColor = curMeth === 'car' ? '#7eb36a' : curMeth === 'verra' ? '#bc85d9' : '#7ac7d0';
+  const fillColor = curMeth === 'car' ? 'rgba(126,179,106,0.1)' : curMeth === 'verra' ? 'rgba(188,133,217,0.1)' : 'rgba(122,199,208,0.1)';
+  const mainLabel = curMeth === 'lsr' ? 'LSR pool-weighted' : 'Net';
+
+  const datasets = [
+    {label:mainLabel,data:netVals,borderColor:lineColor,backgroundColor:fillColor,fill:true,tension:.3,pointRadius:0,borderWidth:2},
+    {label:'Claimed',data:mrtVals.map(()=>sys.claimed),borderColor:'#ea9755',borderDash:[5,3],borderWidth:1.5,pointRadius:0,fill:false},
+    {label:'Conv',data:mrtVals.map(()=>sys.conv),borderColor:'#808080',borderDash:[3,3],borderWidth:1.5,pointRadius:0,fill:false}
+  ];
+  if (curMeth === 'lsr') {
+    datasets.push({label:'LSR full delta',data:mrtVals.map(()=>lsrAFlat),borderColor:'#64b9c4',borderDash:[2,4],borderWidth:1.5,pointRadius:0,fill:false});
+  }
+
+  if (!sensChart) {
+    sensChart = new Chart(document.getElementById('sens-chart'), {
+      type:'line',
+      data:{ labels:mrtVals.map(m=>m+'yr'), datasets },
+      options:{ ...opts,
+        plugins:{ ...opts.plugins, tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}} },
+        scales:{
+          x:{grid:{display:false},ticks:{color:'#808080',font:{size:11},maxTicksLimit:8,autoSkip:true}},
+          y:{grid:{color:'rgba(185,185,187,0.15)'},ticks:{color:'#808080',font:{size:11},callback:v=>fmt(v,1)},
+             title:{display:true,text:'← MAOC MRT →',color:'#808080',font:{size:10}}}
+        }
+      }
+    });
+  } else {
+    sensChart.data.labels = mrtVals.map(m=>m+'yr');
+    sensChart.data.datasets = datasets;
+    sensChart.update('none');
+  }
+}
+
+function updateHorizonChart(p, poc_f, sys) {
+  const hVals = [];
+  for (let h=5; h<=200; h+=5) hVals.push(h);
+  const netVals = hVals.map(h => netForHorizon(h, p, poc_f, sys));
+  const lsrAFlat = curMeth === 'lsr' ? parseFloat(computeNetLsrA(sys, p.maoc_f, poc_f, p.saturation).toFixed(2)) : null;
+
+  const lineColor = curMeth === 'car' ? '#7eb36a' : curMeth === 'verra' ? '#bc85d9' : '#64b9c4';
+  const fillColor = curMeth === 'car' ? 'rgba(126,179,106,0.1)' : curMeth === 'verra' ? 'rgba(188,133,217,0.1)' : 'rgba(100,185,196,0.1)';
+  const mainLabel = curMeth === 'lsr' ? 'LSR pool-weighted' : 'Net';
+
+  const datasets = [
+    {label:mainLabel,data:netVals,borderColor:lineColor,backgroundColor:fillColor,fill:true,tension:.3,pointRadius:0,borderWidth:2},
+    {label:'Claimed',data:hVals.map(()=>sys.claimed),borderColor:'#ea9755',borderDash:[5,3],borderWidth:1.5,pointRadius:0,fill:false},
+    {label:'Conv',data:hVals.map(()=>sys.conv),borderColor:'#808080',borderDash:[3,3],borderWidth:1.5,pointRadius:0,fill:false}
+  ];
+  if (curMeth === 'lsr') {
+    datasets.push({label:'LSR full delta',data:hVals.map(()=>lsrAFlat),borderColor:'#64b9c4',borderDash:[2,4],borderWidth:1.5,pointRadius:0,fill:false});
+  }
+
+  if (!horizChart) {
+    horizChart = new Chart(document.getElementById('horizon-chart'), {
+      type:'line',
+      data:{ labels:hVals.map(h=>h+'yr'), datasets },
+      options:{ ...opts,
+        plugins:{ ...opts.plugins, tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}} },
+        scales:{
+          x:{grid:{display:false},ticks:{color:'#808080',font:{size:11},maxTicksLimit:8,autoSkip:true}},
+          y:{grid:{color:'rgba(185,185,187,0.15)'},ticks:{color:'#808080',font:{size:11},callback:v=>fmt(v,1)},
+             title:{display:true,text:'← horizon (yr) →',color:'#808080',font:{size:10}}}
+        }
+      }
+    });
+  } else {
+    horizChart.data.labels = hVals.map(h=>h+'yr');
+    horizChart.data.datasets = datasets;
+    horizChart.update('none');
+  }
+}
+
+function openSiteMenu() { document.getElementById('siteMenu').classList.add('open'); }
+function closeSiteMenu() { document.getElementById('siteMenu').classList.remove('open'); }
+
+function toggleFold(id) {
+  const el = document.getElementById(id);
+  const isOpen = el.classList.toggle('open');
+  const plus = el.querySelector('.section-fold-plus');
+  if (plus) plus.textContent = isOpen ? '×' : '+';
+}
+
+function toggleTheme() {
+  var html = document.documentElement;
+  var lbl = document.getElementById('themeLabel');
+  if (html.getAttribute('data-theme') === 'light') {
+    html.setAttribute('data-theme', 'dark');
+    if (lbl) lbl.textContent = 'Light';
+  } else {
+    html.setAttribute('data-theme', 'light');
+    if (lbl) lbl.textContent = 'Dark';
+  }
+}
+window.addEventListener('scroll', function() {
+  var el = document.getElementById('scrollIndicator');
+  if (el) {
+    var pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight));
+    el.textContent = 'SCROLL: ' + (isNaN(pct) ? '0.00' : pct.toFixed(2));
+  }
+});
+recomputeSplit(SYSTEMS['fm'].defMaoc === 80 ? 80 : SYSTEMS['fm'].defMaoc);
+document.getElementById('sl-maoc').value = SYSTEMS['fm'].defMaoc;
+onMaoc(SYSTEMS['fm'].defMaoc);
+onSaturation(60);
+update();
+
+document.querySelectorAll('#faq-list details').forEach(d => {
+  d.addEventListener('toggle', () => {
+    const span = d.querySelector('summary span');
+    if (span) span.textContent = d.open ? '−' : '+';
+  });
+});
+
+// Tooltip
+var tipBox = document.createElement('div');
+tipBox.id = 'tip-box';
+document.body.appendChild(tipBox);
+document.querySelectorAll('.info-icon').forEach(function(el) {
+  el.addEventListener('mouseenter', function(e) {
+    tipBox.textContent = el.getAttribute('data-tip');
+    tipBox.style.display = 'block';
+    var r = el.getBoundingClientRect();
+    tipBox.style.left = (r.right + 10) + 'px';
+    tipBox.style.top = (r.top + window.scrollY - 10) + 'px';
+  });
+  el.addEventListener('mouseleave', function() {
+    tipBox.style.display = 'none';
+  });
+});
+</script>
+</body>
+</html>
