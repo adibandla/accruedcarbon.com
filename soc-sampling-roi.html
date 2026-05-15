@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOC Sampling Economics — Accrued Carbon</title>
+<meta name="description" content="Understand how field variability (CV) and sampling cost interact to determine the viability of your soil carbon project.">
+<meta property="og:title" content="SOC Sampling Economics — Accrued Carbon">
+<meta property="og:description" content="At what CV does your soil carbon project stop being viable? Explore the full variability landscape — not just the optimal sample count.">
+<meta property="og:url" content="https://accruedcarbon.com/soc-sampling-roi.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Accrued Carbon">
+<meta property="og:image" content="https://raw.githubusercontent.com/adibandla/accruedcarbon.com/main/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/adibandla/accruedcarbon.com/main/og-image.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" integrity="sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:ital,wght@0,300;0,400;0,500;1,400&family=EB+Garamond:wght@400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#ffffff;--text:#1b1e23;--text2:#808080;--text3:#b9b9bb;--muted:#808080;
+  --border:#e0e0e0;--border2:#b9b9bb;
+  --sans:'Inter',-apple-system,sans-serif;--serif:'EB Garamond',Georgia,serif;--mono:'IBM Plex Mono',monospace;
+  --green:#7eb36a;--green-dim:#edf6ea;--red:#f07071;--red-dim:#fdeaea;
+  --amber:#ea9755;--amber-dim:#fdf3e8;--blue:#85a2f7;--blue-dim:#edf1fe;
+}
+[data-theme="dark"]{
+  --bg:#1b1e23;--text:#ebebec;--text2:#808080;--text3:#4a4b4e;--muted:#4a4b4e;
+  --border:#393a3d;--border2:#4a4b4e;
+  --green-dim:#1d2d1a;--amber-dim:#251b0a;--red-dim:#2a1414;--blue-dim:#151b35;
+}
+html{transition:background .2s,color .2s;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.8;}
+
+/* NAV */
+.site-nav{display:flex;align-items:center;height:53px;padding:0 28px;border-bottom:1px solid var(--border);gap:20px;}
+.site-hamburger{background:none;border:none;cursor:pointer;color:var(--text);padding:4px;display:flex;align-items:center;flex-shrink:0;}
+.site-hamburger svg{width:20px;height:20px;stroke:var(--text);stroke-width:1.5;}
+.site-hamburger:hover{opacity:.5;}
+.site-logo{font-family:var(--serif);font-size:17px;font-weight:400;color:var(--text);text-decoration:none;flex:1;}
+.site-theme-btn{background:none;border:none;color:var(--text3);font-size:11px;font-family:var(--mono);letter-spacing:.04em;padding:4px 0;cursor:pointer;transition:all .15s;}
+.site-theme-btn:hover{color:var(--text);}
+
+/* MENU */
+.site-menu{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;flex-direction:column;}
+.site-menu.open{display:flex;}
+.site-menu-top{display:flex;justify-content:space-between;align-items:center;height:53px;padding:0 28px;border-bottom:1px solid var(--border);}
+.site-menu-logo{font-family:var(--serif);font-size:17px;color:var(--text);}
+.site-menu-close{background:none;border:none;cursor:pointer;color:var(--text);padding:4px;display:flex;align-items:center;}
+.site-menu-close svg{width:20px;height:20px;stroke:var(--text);stroke-width:1.5;}
+.site-menu-links{list-style:none;padding:0 28px;}
+.site-menu-links li{border-bottom:1px solid var(--border);}
+.site-menu-links li a{display:flex;align-items:center;justify-content:space-between;padding:20px 0;font-size:clamp(28px,4vw,44px);font-weight:400;color:var(--text);text-decoration:none;letter-spacing:-.02em;line-height:1.1;transition:opacity .15s;}
+.site-menu-links li a:hover{opacity:.4;}
+.site-menu-arr{font-size:.5em;color:var(--muted);}
+
+/* LAYOUT */
+.app-layout{display:grid;grid-template-columns:420px 1fr;min-height:calc(100vh - 53px);}
+.controls-sidebar{border-right:1px solid var(--border);padding:40px 40px 80px;position:sticky;top:53px;height:calc(100vh - 53px);overflow-y:auto;}
+.sidebar-title-block{margin-bottom:0;}
+.controls-sidebar .article-kicker{margin-bottom:14px;}
+.controls-sidebar h1{font-size:2.1rem;font-weight:400;letter-spacing:-.03em;line-height:1.05;color:var(--text);margin-bottom:14px;margin-top:0;}
+.controls-sidebar .article-intro{font-size:13.5px;line-height:1.75;color:var(--text2);}
+.ctrl-section{padding:20px 0;border-bottom:1px solid var(--border);}
+.ctrl-section:last-child{border-bottom:none;}
+.ctrl-label{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+
+/* TABS */
+.tab-row{display:flex;border:1px solid var(--border);}
+.tab-btn{font-family:var(--mono);font-size:11px;padding:6px 10px;cursor:pointer;background:none;border:none;border-right:1px solid var(--border);color:var(--text2);transition:all .15s;letter-spacing:.04em;text-transform:uppercase;flex:1;text-align:center;}
+.tab-btn:last-child{border-right:none;}
+.tab-btn.active{background:var(--text);color:var(--bg);}
+.tab-btn:hover:not(.active){color:var(--text);}
+
+/* SLIDERS */
+.slider-group{display:flex;flex-direction:column;gap:12px;}
+.slider-row{display:flex;justify-content:space-between;align-items:baseline;gap:6px;}
+.slider-lbl{font-size:14px;color:var(--text2);line-height:1.3;}
+.slider-val{font-family:var(--mono);font-size:13px;color:var(--text);white-space:nowrap;flex-shrink:0;}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--border2);outline:none;cursor:pointer;display:block;margin-top:5px;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--text);cursor:pointer;border:1px solid var(--bg);}
+.source-tag{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:4px;line-height:1.5;}
+.reset-btn{font-family:var(--mono);font-size:11px;padding:2px 8px;border:1px solid var(--border2);background:none;color:var(--text3);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;}
+.reset-btn:hover{color:var(--text);border-color:var(--text);}
+
+/* DERIVED STATS */
+.derived-row{display:flex;gap:0;border:1px solid var(--border);margin-top:10px;}
+.derived-cell{flex:1;padding:7px 10px;border-right:1px solid var(--border);}
+.derived-cell:last-child{border-right:none;}
+.dc-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);}
+.dc-val{font-family:var(--mono);font-size:13px;color:var(--text);margin-top:1px;}
+
+/* VIABILITY NOTE */
+.viab-note{font-size:13.5px;border-left:2px solid var(--green);padding:8px 0 8px 14px;line-height:1.75;color:var(--text2);}
+.viab-note.warn{border-left-color:var(--amber);}
+.viab-note.neg{border-left-color:var(--red);}
+
+/* MAIN */
+.output-main{padding:56px 72px 100px;max-width:1000px;}
+.article-kicker{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:18px;}
+h1{font-size:clamp(30px,3vw,46px);font-weight:400;letter-spacing:-.025em;line-height:1.05;color:var(--text);margin-bottom:16px;}
+.article-byline{font-family:var(--mono);font-size:12px;color:var(--text3);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+.version{font-family:var(--mono);font-size:11px;color:var(--text3);border:1px solid var(--border);padding:1px 6px;}
+.article-intro{font-size:15px;line-height:1.8;color:var(--text2);margin-bottom:48px;max-width:60ch;}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border);border-left:1px solid var(--border);}
+.metric{padding:22px 16px 18px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);}
+.metric .m-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;line-height:1.5;}
+.metric .m-val{font-size:2rem;font-weight:300;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+.metric .m-sub{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:7px;}
+.m-pos{color:var(--green);}.m-neg{color:var(--red);}.m-neu{color:var(--text);}
+
+/* CLIFF METER */
+.cliff-bar-wrap{border:1px solid var(--border);margin-top:12px;overflow:hidden;height:6px;background:var(--border);}
+.cliff-bar-fill{height:100%;transition:width .3s,background .3s;}
+
+/* CHARTS */
+.chart-panel{padding:48px 0 0;border-top:1px solid var(--border);}
+.panel-title{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);margin-bottom:12px;font-weight:400;}
+.panel-desc{font-size:13.5px;color:var(--text3);margin-bottom:16px;line-height:1.6;max-width:58ch;}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;}
+.leg-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--text2);}
+.leg-sq{width:8px;height:8px;flex-shrink:0;}
+.leg-dash{width:14px;height:2px;flex-shrink:0;}
+.chart-container{position:relative;width:100%;}
+.chart-note{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);line-height:1.6;}
+
+.two-charts{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border);}
+.chart-col{padding:48px 44px 32px 0;border-right:1px solid var(--border);}
+.chart-col:last-child{padding:48px 0 32px 44px;border-right:none;}
+
+/* SECTIONS */
+h2{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);font-weight:400;margin:56px 0 20px;padding-top:56px;border-top:1px solid var(--border);}
+p{color:var(--text2);margin-bottom:14px;max-width:64ch;}
+
+/* SENSITIVITY TABLE */
+.sens-table{width:100%;border-collapse:collapse;margin-top:12px;font-family:var(--mono);font-size:12px;}
+.sens-table th{letter-spacing:.04em;text-transform:uppercase;color:var(--text3);text-align:right;padding:7px 10px;border-bottom:1px solid var(--border);font-weight:400;}
+.sens-table th:first-child{text-align:left;}
+.sens-table td{color:var(--text2);text-align:right;padding:7px 10px;border-bottom:1px solid var(--border);}
+.sens-table td:first-child{text-align:left;color:var(--text3);}
+.sens-table tr.cur td{color:var(--text);background:color-mix(in srgb,var(--border) 50%,transparent);}
+.td-pos{color:var(--green)!important;}.td-neg{color:var(--red)!important;}.td-warn{color:var(--amber)!important;}
+
+/* FOOTER */
+.site-footer{border-top:1px solid var(--border);padding:32px 56px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:32px;}
+.footer-col-label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+.footer-col-val{font-size:14px;color:var(--text2);}
+.footer-col-val a{color:var(--text2);text-decoration:none;}
+.footer-col-val a:hover{color:var(--text);}
+
+/* TOOLTIP */
+.info-icon{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border:1px solid var(--border2);font-family:var(--mono);font-size:8px;color:var(--text3);cursor:default;margin-left:4px;vertical-align:middle;flex-shrink:0;font-style:normal;line-height:1;}
+.info-icon:hover{color:var(--text2);border-color:var(--text2);}
+#tip-box{position:fixed;background:var(--bg);border:1px solid var(--border);padding:7px 11px;font-size:12px;font-family:var(--sans);color:var(--text2);line-height:1.55;width:240px;z-index:9999;pointer-events:none;display:none;}
+
+@media(max-width:900px){
+  .app-layout{grid-template-columns:1fr;}
+  .controls-sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border);}
+  .output-main{padding:40px 24px 80px;}
+  .metrics{grid-template-columns:repeat(2,1fr);}
+  .two-charts{grid-template-columns:1fr;}
+  .chart-col{border-right:none;padding:40px 0 32px;}
+  .site-footer{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="tip-box"></div>
+
+<div class="site-menu" id="siteMenu">
+  <div class="site-menu-top">
+    <span class="site-menu-logo">[accrued] carbon</span>
+    <button class="site-menu-close" onclick="closeSiteMenu()">
+      <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+  </div>
+  <ul class="site-menu-links">
+    <li><a href="about.html">About <span class="site-menu-arr">↗</span></a></li>
+    <li><a href="soc-permanence-tool.html">Permanence tool <span class="site-menu-arr">↗</span></a></li>
+    <li><a href="soc-sampling-roi.html">Sampling economics <span class="site-menu-arr">↗</span></a></li>
+    <li><a href="cue_soc_dashboard.html">CUE dashboard <span class="site-menu-arr">↗</span></a></li>
+  </ul>
+</div>
+
+<nav class="site-nav">
+  <button class="site-hamburger" onclick="openSiteMenu()">
+    <svg viewBox="0 0 24 24" fill="none"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="13" x2="21" y2="13"/><line x1="3" y1="19" x2="21" y2="19"/></svg>
+  </button>
+  <a href="index.html" class="site-logo">[accrued] carbon</a>
+  <button class="site-theme-btn" onclick="toggleTheme()" id="themeLabel">Light</button>
+</nav>
+
+<div class="app-layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="controls-sidebar">
+  <div class="sidebar-title-block">
+    <div class="article-kicker">Decision support tool · v0.2</div>
+    <h1>SOC sampling economics</h1>
+    <p class="article-intro">Tools like EONS tell you the optimal sample count for a given scenario. This tool asks the prior question: <em>how sensitive is your project's viability to field variability?</em> Drag the CV slider to find your break-even cliff.</p>
+  </div>
+
+  <!-- PROJECT TYPE -->
+  <div class="ctrl-section" style="padding-bottom:16px;">
+    <div class="ctrl-label">Project type</div>
+    <div class="tab-row">
+      <button class="tab-btn active" id="pt-carbon" onclick="setPtype('carbon')">Carbon markets</button>
+      <button class="tab-btn" id="pt-removal" onclick="setPtype('removal')">Corporate removals</button>
+    </div>
+    <div class="source-tag" id="pt-note" style="margin-top:6px;">VM0042 / Verra · Credit revenue model</div>
+  </div>
+
+  <!-- FIELD VARIABILITY -->
+  <div class="ctrl-section">
+    <div class="ctrl-label">
+      Field variability
+      <button class="reset-btn" onclick="resetAll()">Reset</button>
+    </div>
+    <div class="slider-group">
+      <div>
+        <div class="slider-row">
+          <span class="slider-lbl">Spatial CV
+            <i class="info-icon" data-tip="Field spatial variability: σ_spatial / mean_SOC × 100. This is the between-sample variation within the project area. Typical arable fields: 30–60%. Complex landscapes: 50–80%. Source: Well et al. 2013, Poeplau et al. 2020.">i</i>
+          </span>
+          <span class="slider-val" id="val-cv">40%</span>
+        </div>
+        <input type="range" id="sl-cv" min="1" max="75" step="1" value="40" oninput="onInput()">
+        <div class="source-tag">Typical arable soils: 30–60% (spatial)</div>
+      </div>
+      <div>
+        <div class="slider-row">
+          <span class="slider-lbl">Technical / lab CV
+            <i class="info-icon" data-tip="Analytical and inter-lab measurement error: σ_lab / mean_SOC × 100. LOI method ≈5%; inter-lab SOC stocks: 31–54% (Even et al. 2025, SOIL journal). These errors combine in quadrature with spatial variability.">i</i>
+          </span>
+          <span class="slider-val" id="val-tcv">5%</span>
+        </div>
+        <input type="range" id="sl-tcv" min="0" max="54" step="1" value="5" oninput="onInput()">
+        <div class="source-tag">LOI ≈5%; inter-lab up to 54% (Even et al. 2025)</div>
+      </div>
+      <div>
+        <div class="slider-row">
+          <span class="slider-lbl">Mean SOC stock
+            <i class="info-icon" data-tip="Mean SOC stock in the project area at baseline (tC/ha, 0–60 cm). Used to convert your stock CV to a standard deviation: σ = CV × mean_stock.">i</i>
+          </span>
+          <span class="slider-val" id="val-mean">30 tC/ha</span>
+        </div>
+        <input type="range" id="sl-mean" min="10" max="80" step="2" value="30" oninput="onInput()">
+        <div class="source-tag">Typical UK/EU arable: 20–50 tC/ha</div>
+      </div>
+    </div>
+    <!-- Derived stats -->
+    <div class="derived-row">
+      <div class="derived-cell">
+        <div class="dc-lbl">CV combined</div>
+        <div class="dc-val" id="d-cvcomb">—</div>
+      </div>
+      <div class="derived-cell">
+        <div class="dc-lbl">σ combined</div>
+        <div class="dc-val" id="d-sigma">—</div>
+      </div>
+      <div class="derived-cell">
+        <div class="dc-lbl">σ / δ</div>
+        <div class="dc-val" id="d-ratio">—</div>
+      </div>
+      <div class="derived-cell">
+        <div class="dc-lbl">Unc. at EONS</div>
+        <div class="dc-val" id="d-unc">—</div>
+      </div>
+    </div>
+    <div class="source-tag" style="margin-top:6px;">σ/δ is the noise-to-signal ratio for uncertainty deductions. Values >200% indicate high sampling burden.</div>
+  </div>
+
+  <!-- SAMPLING DESIGN -->
+  <div class="ctrl-section">
+    <div class="ctrl-label">Sampling design</div>
+    <div class="tab-row">
+      <button class="tab-btn active" id="sd-ind" onclick="setDesign('ind')">Independent</button>
+      <button class="tab-btn" id="sd-pair" onclick="setDesign('pair')">Paired</button>
+    </div>
+    <div class="source-tag" id="sd-note" style="margin-top:6px;">SE = σ·√2/√n. Uses SOC stock snapshot variance.</div>
+  </div>
+
+  <!-- METHODOLOGY (carbon only) -->
+  <div class="ctrl-section" id="meth-section">
+    <div class="ctrl-label">Uncertainty framework</div>
+    <div class="tab-row">
+      <button class="tab-btn active" id="meth-vm" onclick="setMeth('vm')">VM0042</button>
+      <button class="tab-btn" id="meth-cus" onclick="setMeth('cus')">Custom CI</button>
+    </div>
+    <div id="vm-note" class="source-tag" style="margin-top:6px;">Deduction = (σ_mean/δ)×100 × 0.4307 (Eq. 65). ≈66.7% one-sided CI.</div>
+    <div id="cus-block" style="display:none;margin-top:10px;">
+      <div class="slider-row">
+        <span class="slider-lbl" style="font-size:13px;">One-sided CI level</span>
+        <span class="slider-val" id="val-ci">90%</span>
+      </div>
+      <input type="range" id="sl-ci" min="50" max="95" step="1" value="90" oninput="onInput()">
+      <div class="source-tag" id="ci-z-note" style="margin-top:4px;">z = 1.282</div>
+    </div>
+    <div style="margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--text3);">Active multiplier: <span id="meth-factor-val" style="color:var(--text);">0.4307</span></div>
+  </div>
+
+  <!-- REPORTING CONFIDENCE (removals only) -->
+  <div class="ctrl-section" id="rem-conf-section" style="display:none;">
+    <div class="ctrl-label">Reporting confidence</div>
+    <div class="tab-row">
+      <button class="tab-btn" id="rc-90" onclick="setConf(90)">90%</button>
+      <button class="tab-btn active" id="rc-95" onclick="setConf(95)">95%</button>
+      <button class="tab-btn" id="rc-99" onclick="setConf(99)">99%</button>
+    </div>
+    <div style="margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--text3);">Two-sided CI · z = <span id="rem-z-val">1.96</span> &nbsp;·&nbsp; GHG Protocol LSR</div>
+  </div>
+
+  <!-- COST -->
+  <div class="ctrl-section">
+    <div class="ctrl-label">Sampling economics</div>
+    <div>
+      <div class="slider-row">
+        <span class="slider-lbl">Cost per sample</span>
+        <span class="slider-val" id="val-cost">$150</span>
+      </div>
+      <input type="range" id="sl-cost" min="20" max="500" step="10" value="150" oninput="onInput()">
+      <div class="source-tag">Field + lab + QA. Typical $80–$300.</div>
+    </div>
+  </div>
+
+  <!-- PROJECT PARAMS -->
+  <div class="ctrl-section">
+    <div class="ctrl-label">Project parameters</div>
+    <div class="slider-group">
+      <div>
+        <div class="slider-row"><span class="slider-lbl">Area</span><span class="slider-val" id="val-area">500 ha</span></div>
+        <input type="range" id="sl-area" min="50" max="5000" step="50" value="500" oninput="onInput()">
+      </div>
+      <div>
+        <div class="slider-row">
+          <span class="slider-lbl">Expected SOC gain
+            <i class="info-icon" data-tip="Expected annualised SOC sequestration rate (tC/ha/yr). Total change δ = rate × duration. This is the 'signal' that the sampling must detect above the spatial noise.">i</i>
+          </span>
+          <span class="slider-val" id="val-soc">0.5 tC/ha/yr</span>
+        </div>
+        <input type="range" id="sl-soc" min="0.1" max="2.0" step="0.1" value="0.5" oninput="onInput()">
+        <div class="source-tag">Typical: 0.2–1.0 tC/ha/yr</div>
+      </div>
+      <div>
+        <div class="slider-row"><span class="slider-lbl">Project duration</span><span class="slider-val" id="val-years">5 yrs</span></div>
+        <input type="range" id="sl-years" min="1" max="10" step="1" value="5" oninput="onInput()">
+      </div>
+      <div id="price-wrap">
+        <div class="slider-row"><span class="slider-lbl">Carbon credit price</span><span class="slider-val" id="val-price">$30/t</span></div>
+        <input type="range" id="sl-price" min="5" max="150" step="5" value="30" oninput="onInput()">
+      </div>
+      <div id="prec-wrap" style="display:none;">
+        <div class="slider-row">
+          <span class="slider-lbl">Credibility threshold
+            <i class="info-icon" data-tip="Maximum acceptable relative uncertainty (±%) for the removal claim to be considered defensible. ±50% is marginal for corporate disclosure; ±30% is acceptable; ±20% is strong. The claim uncertainty falls as monitoring years accumulate.">i</i>
+          </span>
+          <span class="slider-val" id="val-prec">±50%</span>
+        </div>
+        <input type="range" id="sl-prec" min="20" max="80" step="5" value="50" oninput="onInput()">
+        <div class="source-tag">±50% marginal · ±30% acceptable · ±20% strong</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIABILITY NOTE -->
+  <div class="ctrl-section" style="border-bottom:none;padding-bottom:0;">
+    <div id="viab-note" class="viab-note">—</div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="output-main">
+
+  <div class="article-kicker" id="main-kicker">Sampling economics · Field variability · Project viability</div>
+  <h1 id="main-h1">How much field variability<br>can your project absorb?</h1>
+  <div class="article-byline">
+    <span class="version">v0.3</span>
+    <span>accruedcarbon.com</span>
+  </div>
+  <p class="article-intro" id="main-intro">High CV means more samples needed <em>and</em> larger uncertainty deductions on every credit issued. The two effects compound. This tool shows you the full CV landscape — where the break-even cliff is, and how far you are from it.</p>
+
+  <!-- METRICS: CARBON -->
+  <div class="metrics" id="carbon-metrics">
+    <div class="metric">
+      <div class="m-lbl">Break-even CV<br><span style="font-size:9px;">max viable stock CV</span></div>
+      <div class="m-val m-neu" id="m-becv">—</div>
+      <div class="m-sub" id="m-becv-sub">—</div>
+    </div>
+    <div class="metric">
+      <div class="m-lbl">Your CV vs cliff</div>
+      <div class="m-val" id="m-margin">—</div>
+      <div class="m-sub" id="m-margin-sub">—</div>
+      <div class="cliff-bar-wrap"><div class="cliff-bar-fill" id="cliff-bar"></div></div>
+    </div>
+    <div class="metric">
+      <div class="m-lbl">Max profit at current CV<br><span style="font-size:9px;">(at EONS)</span></div>
+      <div class="m-val" id="m-profit">—</div>
+      <div class="m-sub" id="m-profit-sub">—</div>
+    </div>
+    <div class="metric">
+      <div class="m-lbl">EONS<br><span style="font-size:9px;">(economic opt. n)</span></div>
+      <div class="m-val m-neu" id="m-eons">—</div>
+      <div class="m-sub" id="m-eons-sub">—</div>
+    </div>
+  </div>
+
+  <!-- METRICS: REMOVALS -->
+  <div class="metrics" id="rem-metrics" style="display:none;">
+    <div class="metric">
+      <div class="m-lbl">Years to credibility<br><span style="font-size:9px;">(at n=30 samples)</span></div>
+      <div class="m-val m-neu" id="rm-n">—</div>
+      <div class="m-sub" id="rm-n-sub">—</div>
+    </div>
+    <div class="metric">
+      <div class="m-lbl">n within project horizon<br><span style="font-size:9px;">(samples to hit threshold)</span></div>
+      <div class="m-val m-neu" id="rm-cost">—</div>
+      <div class="m-sub" id="rm-cost-sub">—</div>
+    </div>
+    <div class="metric">
+      <div class="m-lbl">σ / annual rate<br><span style="font-size:9px;">(noise-to-signal, tC basis)</span></div>
+      <div class="m-val m-neu" id="rm-gross">—</div>
+      <div class="m-sub" id="rm-gross-sub">—</div>
+    </div>
+    <div class="metric">
+      <div class="m-lbl">Claim uncertainty now<br><span style="font-size:9px;">(at project duration, n=30)</span></div>
+      <div class="m-val m-neu" id="rm-cpt">—</div>
+      <div class="m-sub" id="rm-cpt-sub">—</div>
+    </div>
+  </div>
+
+  <!-- PRIMARY CHART -->
+  <div class="chart-panel" style="margin-top:0;">
+    <div class="panel-title" id="chart1-title">Maximum profit vs. SOC stock CV</div>
+    <div class="panel-desc" id="chart1-desc">At each CV, profit shown is the best achievable (i.e. at EONS). The break-even CV is where this curve crosses zero — your project's tolerance limit for field variability.</div>
+    <div class="chart-legend" id="chart1-legend">
+      <div class="leg-item"><div class="leg-sq" style="background:var(--green);"></div>Viable</div>
+      <div class="leg-item"><div class="leg-sq" style="background:var(--red);"></div>Not viable</div>
+      <div class="leg-item"><div class="leg-sq" style="background:var(--blue);opacity:.8;"></div>Your CV</div>
+      <div class="leg-item"><div class="leg-dash" style="background:var(--border2);"></div>Break-even</div>
+    </div>
+    <div class="chart-container" style="height:300px;">
+      <canvas id="profitCVChart"></canvas>
+    </div>
+    <div class="chart-note" id="pcv-note">—</div>
+  </div>
+
+  <!-- TWO SECONDARY CHARTS -->
+  <div class="two-charts">
+    <div class="chart-col">
+      <div class="panel-title" id="chart2-title">Break-even CV vs. credit price</div>
+      <div class="panel-desc" id="chart2-desc" style="font-size:12.5px;">Higher credit prices raise the break-even CV — your project can tolerate more variable fields. Shown for three cost/sample levels.</div>
+      <div class="chart-container" style="height:220px;">
+        <canvas id="beChart"></canvas>
+      </div>
+      <div class="chart-note" id="be-note">—</div>
+    </div>
+    <div class="chart-col">
+      <div class="panel-title" id="chart3-title">EONS vs. CV — optimal sample count</div>
+      <div class="panel-desc" id="chart3-desc" style="font-size:12.5px;">EONS grows with CV. This is how many samples would maximize profit at each variability level — shown for reference.</div>
+      <div class="chart-container" style="height:220px;">
+        <canvas id="eonsCVChart"></canvas>
+      </div>
+      <div class="chart-note" id="eons-cv-note">—</div>
+    </div>
+  </div>
+
+  <!-- SENSITIVITY TABLE -->
+  <h2 id="sens-h2">Break-even CV — sensitivity to credit price × sample cost</h2>
+  <p id="sens-p">Each cell shows the maximum SOC stock CV at which the project remains profitable (at EONS). Green = generous tolerance. Red = project only viable at very low field variability. Current inputs highlighted.</p>
+  <table class="sens-table" id="sensTable"><thead id="sensHead"></thead><tbody id="sensBody"></tbody></table>
+
+  <!-- METHODOLOGY: CARBON -->
+  <div id="carbon-meth">
+    <h2>How this differs from EONS tools</h2>
+    <p>Tools like Seqana's EONS calculator answer: <em>"Given your scenario, what is the optimal sample count?"</em> — a single number for a specific set of inputs.</p>
+    <p>This tool answers: <em>"Across the range of plausible field variabilities, where does your project stop being viable?"</em> — a landscape that exposes sensitivity to the most uncertain input in project planning.</p>
+    <p>Both use the same underlying model. The uncertainty deduction follows <strong>VM0042 Eq. 65</strong>:</p>
+    <p style="font-family:var(--mono);font-size:13px;color:var(--text);padding:12px 16px;border:1px solid var(--border);display:block;line-height:2.2;margin:8px 0 16px;">
+      unc_deduction (%) = (σ · f / √n / δ) × 100 × M<br>
+      EONS = [G · p · M · σ · f / (2c)]^(2/3)<br>
+      Break-even CV = 2/(M·f·3√3) · √(G·p/c) / mean_stock × 100%
+    </p>
+    <p>where <em>σ</em> = std dev of SOC stocks (tC/ha), <em>δ</em> = expected SOC change (tC/ha), <em>f</em> = √2 (independent) or 1 (paired), <em>M</em> = methodology multiplier (0.4307 for VM0042), <em>G</em> = gross tCO₂e, <em>p</em> = credit price, <em>c</em> = cost per sample.</p>
+    <p>The break-even CV formula is derived analytically from setting profit at EONS equal to zero. It shows that break-even CV scales with √(G·p/c) — doubling gross revenue or halving sample cost increases the break-even CV by √2 ≈ 41%.</p>
+    <p>This tool models sampling cost only. Verification fees, buffer pool deductions, and methodology registration costs are not included.</p>
+  </div>
+
+  <!-- METHODOLOGY: REMOVALS -->
+  <div id="rem-meth" style="display:none;">
+    <h2>Time to credibility — the core concept</h2>
+    <p>In agricultural soils, spatial variability (σ) typically dwarfs the annual sequestration rate. A field sequestering 0.5 tC/ha/yr with a stock CV of 40% and mean SOC of 30 tC/ha has σ = 12 tC/ha — 24 years of signal in a single standard deviation. The removal claim only becomes statistically defensible once cumulative δ rises above the noise.</p>
+    <p>The relative uncertainty of a removal claim after Y years with n samples is:</p>
+    <p style="font-family:var(--mono);font-size:13px;color:var(--text);padding:12px 16px;border:1px solid var(--border);display:block;line-height:2.2;margin:8px 0 16px;">
+      uncertainty (%) = z · σ_total · f / (rate · Y · √n) × 100<br>
+      years to credibility = z · σ_total · f / (T · rate · √n)<br>
+      n to detect in Y years = ⌈ (z · σ_total · f / (T · rate · Y))² ⌉
+    </p>
+    <p>where <em>T</em> = credibility threshold (fraction), <em>σ_total</em> = √(σ²_spatial + σ²_technical), <em>rate</em> = annual SOC sequestration rate (tC/ha/yr), <em>f</em> = √2 (independent sampling) or 1 (paired), <em>z</em> = confidence quantile.</p>
+    <p>Years to credibility scales with σ/(T · rate · √n). The three levers available to a corporate or project developer are: (1) increase n — more samples per campaign, diminishing returns above ~50; (2) choose lower-variability fields — halving CV halves the monitoring period; (3) increase rate or extend the horizon — longer projects accumulate more signal.</p>
+    <p>The sensitivity table sweeps n × sequestration rate to show which combinations reach credibility within a 5- or 10-year window. Fields with σ/rate > ~15 years are unlikely to produce defensible measure-remeasure claims within typical corporate reporting cycles regardless of sample count.</p>
+    <p>This tool models direct sampling uncertainty only. Additionality, permanence risk, and leakage are not included.</p>
+  </div>
+
+  <div style="height:80px;"></div>
+</main>
+
+</div>
+
+<footer class="site-footer">
+  <div><div class="footer-col-label">Site</div><div class="footer-col-val"><a href="index.html">[accrued] carbon</a></div></div>
+  <div><div class="footer-col-label">Tools</div><div class="footer-col-val"><a href="soc-permanence-tool.html">Permanence</a><br><a href="soc-sampling-roi.html">Sampling economics</a></div></div>
+  <div><div class="footer-col-label">Sources</div><div class="footer-col-val">VM0042 v2.0 §8.6, Eq. 65</div></div>
+  <div><div class="footer-col-label">Disclaimer</div><div class="footer-col-val">Illustrative only. Not verification advice.</div></div>
+</footer>
+
+<script>
+// ── STATE ────────────────────────────────────────────────────────────────
+let design = 'ind';     // 'ind' | 'pair'
+let meth   = 'vm';     // 'vm' | 'cus'
+let ptype  = 'carbon'; // 'carbon' | 'removal'
+let conf   = 95;       // reporting confidence for removals (%)
+
+// ── MATH ─────────────────────────────────────────────────────────────────
+function invNorm(p) {
+  if (p<=0) return -6; if (p>=1) return 6;
+  const a=[0,-3.969683028665376e1,2.209460984245205e2,-2.759285104469687e2,1.383577518672690e2,-3.066479806614716e1,2.506628277459239];
+  const b=[0,-5.447609879822406e1,1.615858368580409e2,-1.556989798598866e2,6.680131188771972e1,-1.328068155288572e1];
+  const c=[-7.784894002430293e-3,-3.223964580411365e-1,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783];
+  const d=[7.784695709041462e-3,3.224671290700398e-1,2.445134137142996,3.754408661907416];
+  const pL=0.02425,pH=1-pL; let x;
+  if(p<pL){const q=Math.sqrt(-2*Math.log(p));x=(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  else if(p<=pH){const q=p-0.5,r=q*q;x=(((((a[1]*r+a[2])*r+a[3])*r+a[4])*r+a[5])*r+a[6])*q/(((((b[1]*r+b[2])*r+b[3])*r+b[4])*r+b[5])*r+1);}
+  else{const q=Math.sqrt(-2*Math.log(1-p));x=-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  return x;
+}
+
+function getMF() { return meth==='vm' ? 0.4307 : Math.max(0,invNorm(+document.getElementById('sl-ci').value/100)); }
+function getF()  { return design==='ind' ? Math.SQRT2 : 1; }
+
+// Core derived quantities from slider values
+function getConfZ() {
+  if (conf === 90) return 1.645;
+  if (conf === 99) return 2.576;
+  return 1.96;
+}
+
+function getInp() {
+  const cvSpatial  = +document.getElementById('sl-cv').value / 100;
+  const cvTech     = +document.getElementById('sl-tcv').value / 100;
+  const cvCombined = Math.sqrt(cvSpatial**2 + cvTech**2);
+  const meanSOC    = +document.getElementById('sl-mean').value;
+  const socRate    = +document.getElementById('sl-soc').value;
+  const years      = +document.getElementById('sl-years').value;
+  const area       = +document.getElementById('sl-area').value;
+  const cost       = +document.getElementById('sl-cost').value;
+  const price      = +document.getElementById('sl-price').value;
+  const credThresh = +document.getElementById('sl-prec').value / 100;
+  const sigma      = cvCombined * meanSOC;
+  const delta      = socRate * years;
+  const gross      = area * delta * (44/12);
+  const z_rem      = getConfZ();
+  return { cv: cvCombined, cvSpatial, cvTech, meanSOC, sigma, delta, gross, area, cost, price, socRate, years, credThresh, z_rem, mf: getMF(), f: getF() };
+}
+
+// ── REMOVALS MATH ────────────────────────────────────────────────────────
+// Relative claim uncertainty at n samples after Y years (as fraction)
+function relUnc(n, years, sigma, inp) {
+  const { socRate, f, z_rem } = inp;
+  const delta = socRate * years;
+  if (n <= 0 || delta <= 0 || sigma <= 0) return Infinity;
+  return z_rem * sigma * f / (delta * Math.sqrt(n));
+}
+// Years until relative uncertainty drops to credThresh at n samples
+function yearsToCred(n, sigma, inp) {
+  const { socRate, f, z_rem, credThresh } = inp;
+  if (n <= 0 || socRate <= 0 || sigma <= 0 || credThresh <= 0) return Infinity;
+  return z_rem * sigma * f / (credThresh * socRate * Math.sqrt(n));
+}
+// n needed to reach credThresh within Y years
+function nToDetect(years, sigma, inp) {
+  const { socRate, f, z_rem, credThresh } = inp;
+  const delta = socRate * years;
+  if (delta <= 0 || sigma <= 0) return Infinity;
+  return Math.max(1, Math.ceil((z_rem * sigma * f / (credThresh * delta))**2));
+}
+
+// Profit at EONS, given sigma explicitly (useful for sweeping)
+function profitAtEONS(sigma, inp) {
+  const { gross, price, cost, mf, f } = inp;
+  if (sigma <= 0 || gross <= 0) return gross * price - cost; // edge case
+  const eons = calcEONS(sigma, inp);
+  // Profit at EONS = G*p - 3*c*EONS  (analytically derived)
+  return gross * price - 3 * cost * eons;
+}
+
+function calcEONS(sigma, inp) {
+  const { gross, price, cost, mf, f } = inp;
+  const inner = gross * price * mf * sigma * f / (2 * cost);
+  if (inner <= 0) return 1;
+  return Math.max(1, Math.round(Math.pow(inner, 2/3)));
+}
+
+// Uncertainty deduction % at EONS
+function uncAtEONS(sigma, inp) {
+  const { delta, mf, f } = inp;
+  if (delta <= 0 || sigma <= 0) return 0;
+  const eons = calcEONS(sigma, inp);
+  const se   = sigma * f / Math.sqrt(eons);
+  return (se / delta) * 100 * mf;
+}
+
+// Break-even CV (stock CV, as fraction) — analytical
+// Profit at EONS = 0 ↔ G*p = 3*c*EONS_be
+// EONS_be = (G*p/(3*c))^1 and also EONS_be = (G*p*mf*sigma_be*f/(2c))^(2/3)
+// Solving: sigma_be = 2/(mf*f*3√3) * √(G*p/c)
+function breakEvenSigma(inp) {
+  const { gross, price, cost, mf, f } = inp;
+  if (mf <= 0 || f <= 0 || cost <= 0) return Infinity;
+  return (2 / (mf * f * 3 * Math.sqrt(3))) * Math.sqrt(gross * price / cost);
+}
+function breakEvenCV(inp) {
+  const sigBE = breakEvenSigma(inp);
+  return inp.meanSOC > 0 ? sigBE / inp.meanSOC * 100 : Infinity;
+}
+
+// ── FORMAT ───────────────────────────────────────────────────────────────
+function fmt$(v) {
+  const s=v<0?'-':'', a=Math.abs(v);
+  if(a>=1e6) return s+'$'+(a/1e6).toFixed(2)+'M';
+  if(a>=1e3) return s+'$'+(a/1e3).toFixed(1)+'k';
+  return s+'$'+Math.round(a).toLocaleString();
+}
+function fmtN(v) { return v>=1000?(v/1000).toFixed(1)+'k':v.toLocaleString(); }
+
+// ── MAIN UPDATE ──────────────────────────────────────────────────────────
+function updateAll() {
+  const inp = getInp();
+
+  // Shared sidebar labels
+  document.getElementById('val-cv').textContent    = Math.round(inp.cvSpatial * 100) + '%';
+  document.getElementById('val-tcv').textContent   = Math.round(inp.cvTech * 100) + '%';
+  document.getElementById('val-mean').textContent  = inp.meanSOC + ' tC/ha';
+  document.getElementById('val-cost').textContent  = '$' + inp.cost;
+  document.getElementById('val-area').textContent  = inp.area.toLocaleString() + ' ha';
+  document.getElementById('val-soc').textContent   = (+document.getElementById('sl-soc').value).toFixed(1) + ' tC/ha/yr';
+  document.getElementById('val-years').textContent = +document.getElementById('sl-years').value + ' yrs';
+
+  // Derived stats (shared)
+  document.getElementById('d-cvcomb').textContent = (inp.cv * 100).toFixed(1) + '%';
+  document.getElementById('d-sigma').textContent  = inp.sigma.toFixed(1) + ' tC/ha';
+  document.getElementById('d-ratio').textContent  = inp.delta > 0 ? (inp.sigma/inp.delta*100).toFixed(0)+'%' : '—';
+  document.getElementById('d-unc').textContent    = ptype==='carbon' ? uncAtEONS(inp.sigma, inp).toFixed(1)+'%' : '—';
+
+  if (ptype === 'carbon') updateCarbonMode(inp);
+  else                    updateRemovalMode(inp);
+}
+
+function updateCarbonMode(inp) {
+  const beCVpct  = breakEvenCV(inp);
+  const curCVpct = inp.cv * 100;
+  const eons     = calcEONS(inp.sigma, inp);
+  const profit   = profitAtEONS(inp.sigma, inp);
+  const margin   = beCVpct - curCVpct;
+
+  document.getElementById('val-price').textContent = '$' + inp.price + '/t';
+
+  const mf = getMF();
+  document.getElementById('meth-factor-val').textContent = mf.toFixed(4);
+  if (meth === 'cus') {
+    document.getElementById('val-ci').textContent = +document.getElementById('sl-ci').value + '%';
+    document.getElementById('ci-z-note').textContent = 'z = ' + mf.toFixed(3);
+  }
+
+  const beCVEl = document.getElementById('m-becv');
+  if (isFinite(beCVpct) && beCVpct > 0) {
+    beCVEl.textContent = beCVpct.toFixed(1) + '%';
+    beCVEl.className   = 'm-val ' + (beCVpct >= 30 ? 'm-pos' : 'm-neg');
+  } else {
+    beCVEl.textContent = beCVpct <= 0 ? 'Never' : '—';
+    beCVEl.className   = 'm-val m-neg';
+  }
+  document.getElementById('m-becv-sub').textContent = 'at $' + inp.price + '/t, $' + inp.cost + '/sample';
+
+  const mEl = document.getElementById('m-margin');
+  mEl.textContent = isFinite(margin) ? (margin>=0?'+':'')+margin.toFixed(1)+'pp' : '—';
+  mEl.className   = 'm-val ' + (margin>=10?'m-pos':margin>=0?'m-neu':'m-neg');
+  document.getElementById('m-margin-sub').textContent = margin>=0 ? 'headroom to break-even CV' : 'pp beyond viability cliff';
+
+  const pct = isFinite(beCVpct) && beCVpct>0 ? Math.min(100, curCVpct/beCVpct*100) : 100;
+  const bar = document.getElementById('cliff-bar');
+  bar.style.width      = pct.toFixed(1) + '%';
+  bar.style.background = pct < 70 ? 'var(--green)' : pct < 90 ? 'var(--amber)' : 'var(--red)';
+
+  const profEl = document.getElementById('m-profit');
+  profEl.textContent = fmt$(profit);
+  profEl.className   = 'm-val ' + (profit>=0?'m-pos':'m-neg');
+  document.getElementById('m-profit-sub').textContent = 'EONS = ' + fmtN(eons) + ' samples';
+  document.getElementById('m-eons').textContent     = fmtN(eons);
+  document.getElementById('m-eons-sub').textContent = design==='ind'?'independent':'paired';
+
+  const noteEl = document.getElementById('viab-note');
+  if (margin >= 10) {
+    noteEl.className = 'viab-note';
+    noteEl.innerHTML = `CV=${Math.round(curCVpct)}% is <strong>${margin.toFixed(0)}pp below</strong> the break-even CV of ${isFinite(beCVpct)?beCVpct.toFixed(1)+'%':'∞'}. Project has meaningful variability headroom at EONS.`;
+  } else if (margin >= 0) {
+    noteEl.className = 'viab-note warn';
+    noteEl.innerHTML = `CV=${Math.round(curCVpct)}% is within <strong>${margin.toFixed(0)}pp of the break-even cliff</strong>. Small measurement errors in CV could flip project viability.`;
+  } else {
+    noteEl.className = 'viab-note neg';
+    noteEl.innerHTML = `CV=${Math.round(curCVpct)}% exceeds the break-even CV of ${isFinite(beCVpct)?beCVpct.toFixed(1)+'%':'—'}. <strong>Project is not viable</strong> at these parameters even at the economic optimum.`;
+  }
+
+  updateProfitCVChart(inp, beCVpct, curCVpct, inp.cvSpatial * 100);
+  updateBEChart(inp);
+  updateEONSCVChart(inp, inp.cvSpatial * 100);
+  updateSensTable(inp);
+}
+
+function updateRemovalMode(inp) {
+  const REF_N   = 30; // reference sample count for metric cards
+  const yc30    = yearsToCred(REF_N, inp.sigma, inp);
+  const nHoriz  = nToDetect(inp.years, inp.sigma, inp);
+  const snrRate = inp.socRate > 0 ? inp.sigma / inp.socRate : Infinity; // σ / annual rate
+  const uncNow  = relUnc(REF_N, inp.years, inp.sigma, inp);
+
+  document.getElementById('val-prec').textContent  = '±' + Math.round(inp.credThresh * 100) + '%';
+  document.getElementById('rem-z-val').textContent = inp.z_rem.toFixed(3);
+
+  // Years to credibility at n=30
+  const ycEl = document.getElementById('rm-n');
+  ycEl.textContent = isFinite(yc30) ? yc30.toFixed(1) + ' yr' : '—';
+  ycEl.className   = 'm-val ' + (!isFinite(yc30)?'m-neg':yc30<=5?'m-pos':yc30<=10?'m-neu':'m-neg');
+  document.getElementById('rm-n-sub').textContent = `at n=${REF_N}, ±${Math.round(inp.credThresh*100)}% threshold`;
+
+  // n to detect within project duration
+  const ndEl = document.getElementById('rm-cost');
+  ndEl.textContent = isFinite(nHoriz) ? fmtN(nHoriz) : '—';
+  ndEl.className   = 'm-val ' + (!isFinite(nHoriz)?'m-neg':nHoriz<=30?'m-pos':nHoriz<=100?'m-neu':'m-neg');
+  document.getElementById('rm-cost-sub').textContent = `within ${inp.years} yr · ${fmt$(isFinite(nHoriz)?nHoriz*inp.cost:0)}`;
+
+  // σ / annual rate
+  const srEl = document.getElementById('rm-gross');
+  srEl.textContent = isFinite(snrRate) ? snrRate.toFixed(1) + ' yr' : '—';
+  srEl.className   = 'm-val ' + (!isFinite(snrRate)?'m-neg':snrRate<3?'m-pos':snrRate<8?'m-neu':'m-neg');
+  document.getElementById('rm-gross-sub').textContent = `σ=${inp.sigma.toFixed(1)} tC/ha ÷ ${inp.socRate.toFixed(2)} tC/ha/yr`;
+
+  // Claim uncertainty at project duration, n=30
+  const ucEl = document.getElementById('rm-cpt');
+  const uncPct = isFinite(uncNow) ? uncNow * 100 : Infinity;
+  ucEl.textContent = isFinite(uncPct) ? '±' + uncPct.toFixed(0) + '%' : '—';
+  ucEl.className   = 'm-val ' + (!isFinite(uncPct)?'m-neg':uncPct<=30?'m-pos':uncPct<=60?'m-neu':'m-neg');
+  document.getElementById('rm-cpt-sub').textContent = `at ${inp.years} yr, n=${REF_N}`;
+
+  // Sidebar note
+  const noteEl = document.getElementById('viab-note');
+  const threshPct = Math.round(inp.credThresh * 100);
+  if (!isFinite(yc30)) {
+    noteEl.className = 'viab-note neg';
+    noteEl.innerHTML = `σ/rate = ${snrRate.toFixed(1)} yr — signal accumulates too slowly relative to field variability. No practical sample count produces a credible claim within a reasonable horizon.`;
+  } else if (yc30 <= inp.years) {
+    noteEl.className = 'viab-note';
+    noteEl.innerHTML = `With <strong>n=${REF_N}</strong>, claim crosses ±${threshPct}% threshold in <strong>${yc30.toFixed(1)} yr</strong> — within your ${inp.years}-yr project window. Measure-remeasure is viable.`;
+  } else if (isFinite(nHoriz) && nHoriz <= 100) {
+    noteEl.className = 'viab-note warn';
+    noteEl.innerHTML = `n=${REF_N} takes ${yc30.toFixed(1)} yr — beyond your ${inp.years}-yr horizon. <strong>${fmtN(nHoriz)} samples</strong> would achieve ±${threshPct}% within ${inp.years} yr at ${fmt$(nHoriz*inp.cost)}.`;
+  } else {
+    noteEl.className = 'viab-note neg';
+    noteEl.innerHTML = `Claim uncertainty is ±${uncPct.toFixed(0)}% at project end with n=${REF_N}. <strong>±${threshPct}% credibility requires ${isFinite(nHoriz)?fmtN(nHoriz):'impractical'} samples</strong> or a longer monitoring horizon.`;
+  }
+
+  updateClaimUncVsYearsChart(inp);
+  updateYearsVsNChart(inp);
+  updateYearsVsCVChart(inp);
+  updateRemSensTable(inp);
+}
+
+// ── CHARTS ────────────────────────────────────────────────────────────────
+let profitCVChart, beChart, eonsCVChart;
+
+function cv(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+function baseOpts(xl, yl) {
+  return {
+    responsive:true, maintainAspectRatio:false, animation:{duration:100},
+    plugins:{legend:{display:false}, tooltip:{
+      backgroundColor:cv('--bg'),borderColor:cv('--border'),borderWidth:1,
+      titleColor:cv('--text'),bodyColor:cv('--text2'),padding:8,
+      titleFont:{family:"'IBM Plex Mono',monospace",size:11},
+      bodyFont:{family:"'IBM Plex Mono',monospace",size:11}
+    }},
+    scales:{
+      x:{title:{display:!!xl,text:xl,color:cv('--text3'),font:{family:"'IBM Plex Mono',monospace",size:11}},
+         grid:{color:cv('--border')},ticks:{color:cv('--text3'),font:{family:"'IBM Plex Mono',monospace",size:11},maxTicksLimit:8},
+         border:{color:cv('--border')}},
+      y:{title:{display:!!yl,text:yl,color:cv('--text3'),font:{family:"'IBM Plex Mono',monospace",size:11}},
+         grid:{color:cv('--border')},ticks:{color:cv('--text3'),font:{family:"'IBM Plex Mono',monospace",size:11}},
+         border:{color:cv('--border')}}
+    }
+  };
+}
+
+function initCharts() {
+  profitCVChart = new Chart(document.getElementById('profitCVChart'), { type:'line', data:{labels:[],datasets:[]}, options: baseOpts('SOC stock CV (%)','Max profit ($)') });
+  beChart       = new Chart(document.getElementById('beChart'),       { type:'line', data:{labels:[],datasets:[]}, options: baseOpts('Credit price ($/tCO₂e)','Break-even CV (%)') });
+  eonsCVChart   = new Chart(document.getElementById('eonsCVChart'),   { type:'line', data:{labels:[],datasets:[]}, options: baseOpts('SOC stock CV (%)','EONS (samples)') });
+  updateAll();
+}
+
+function updateProfitCVChart(inp, beCVpct, curCVpct, curSpatialCVpct) {
+  const cvs     = []; for (let c=1;c<=75;c++) cvs.push(c);
+  const profits = cvs.map(c => {
+    // combine swept spatial CV with fixed technical CV in quadrature
+    const sig = Math.sqrt((c/100)**2 + inp.cvTech**2) * inp.meanSOC;
+    return Math.max(-inp.gross * inp.price * 2, profitAtEONS(sig, inp));
+  });
+  const green = cv('--green'), red = cv('--red'), blue = cv('--blue'), text3 = cv('--text3');
+
+  // Marker sits at the user's current spatial CV on the x-axis
+  const curIdx = cvs.findIndex(c => c === Math.round(curSpatialCVpct));
+  const curProfit = curIdx>=0 ? profits[curIdx] : null;
+
+  profitCVChart.data.labels   = cvs;
+  profitCVChart.data.datasets = [
+    { // profit curve, coloured by sign
+      data: profits, borderWidth:2, pointRadius:0, tension:0.3, backgroundColor:'transparent',
+      borderColor: green,
+      segment:{ borderColor: ctx => ctx.p1.parsed.y >= 0 ? green : red }
+    },
+    { // zero line
+      data: cvs.map(()=>0), borderColor:text3, borderWidth:1, borderDash:[4,3],
+      pointRadius:0, backgroundColor:'transparent'
+    },
+    { // break-even CV vertical band (simulated with scatter at y=0)
+      data: cvs.map(c => Math.abs(c - beCVpct) < 0.6 ? 0 : null),
+      pointRadius:6, pointStyle:'line', pointBorderColor:text3, pointBorderWidth:2,
+      borderWidth:0, showLine:false
+    },
+    { // current CV marker
+      data: cvs.map((c,i) => i===curIdx ? curProfit : null),
+      pointRadius:7, pointBackgroundColor:blue, pointBorderColor:blue,
+      borderWidth:0, showLine:false
+    }
+  ];
+  profitCVChart.update();
+
+  const safe = beCVpct > 80 ? '>80%' : beCVpct.toFixed(1)+'%';
+  document.getElementById('pcv-note').textContent =
+    isFinite(beCVpct) && beCVpct > 0
+      ? `Break-even CV ≈ ${safe}. Above this, sampling costs exceed revenue even at the economic optimum. Your project is at CV=${Math.round(curSpatialCVpct)}% spatial (${(inp.cv*100).toFixed(1)}% combined).`
+      : 'Project is not profitable at any CV under these parameters.';
+}
+
+function updateBEChart(inp) {
+  const prices = []; for (let p=5;p<=150;p+=5) prices.push(p);
+  const costs  = [inp.cost*0.5, inp.cost, inp.cost*2].map(c=>Math.max(20,Math.round(c/10)*10));
+  const colors = [cv('--green'), cv('--blue'), cv('--amber')];
+
+  const datasets = costs.map((c,i) => ({
+    label: '$'+c+'/sample',
+    data: prices.map(p => {
+      const ii = {...inp, cost:c, price:p};
+      const be = breakEvenCV(ii);
+      return isFinite(be) ? Math.min(100, be) : 100;
+    }),
+    borderColor: colors[i], backgroundColor:'transparent', borderWidth:1.5+(i===1?0.5:0),
+    borderDash: i===0?[4,3]:i===2?[2,2]:[],
+    pointRadius:0, tension:0.3
+  }));
+  // current price marker on middle line
+  const curPriceIdx = prices.findIndex(p => p === inp.price);
+  const beCur = isFinite(breakEvenCV(inp)) ? Math.min(100, breakEvenCV(inp)) : 100;
+
+  beChart.data.labels   = prices;
+  beChart.data.datasets = [
+    ...datasets,
+    { data: prices.map((p,i)=>i===curPriceIdx ? beCur : null),
+      pointRadius:6, pointBackgroundColor:cv('--blue'), pointBorderColor:cv('--blue'),
+      borderWidth:0, showLine:false }
+  ];
+  beChart.update();
+
+  document.getElementById('be-note').textContent =
+    `At $${inp.price}/t and $${inp.cost}/sample, break-even CV ≈ ${isFinite(breakEvenCV(inp))?breakEvenCV(inp).toFixed(1)+'%':'n/a'}. Dashed = $${costs[0]}/sample; solid = current; dotted = $${costs[2]}/sample.`;
+}
+
+function updateEONSCVChart(inp, curSpatialCVpct) {
+  const cvs    = []; for (let c=1;c<=75;c++) cvs.push(c);
+  const eonsVs = cvs.map(c => calcEONS(Math.sqrt((c/100)**2 + inp.cvTech**2) * inp.meanSOC, inp));
+  const curIdx = cvs.findIndex(c => c === Math.round(curSpatialCVpct));
+  const curEons = curIdx>=0 ? eonsVs[curIdx] : null;
+
+  eonsCVChart.data.labels   = cvs;
+  eonsCVChart.data.datasets = [
+    { data:eonsVs, borderColor:cv('--text2'), backgroundColor:'transparent', borderWidth:1.5, pointRadius:0, tension:0.3 },
+    { data:cvs.map((c,i)=>i===curIdx?curEons:null),
+      pointRadius:6, pointBackgroundColor:cv('--blue'), pointBorderColor:cv('--blue'),
+      borderWidth:0, showLine:false }
+  ];
+  eonsCVChart.update();
+
+  document.getElementById('eons-cv-note').textContent =
+    `EONS at spatial CV=${Math.round(curSpatialCVpct)}% (combined ${(inp.cv*100).toFixed(1)}%): ${fmtN(calcEONS(inp.sigma, inp))} samples. EONS scales as CV^(2/3) — doubling CV raises EONS by ~59%.`;
+}
+
+function updateSensTable(inp) {
+  const priceVals = [10, 20, 30, 50, 75, 100];
+  const costVals  = [50, 100, 150, 200, 300, 500];
+
+  document.getElementById('sensHead').innerHTML =
+    '<tr><th>Price →<br>Cost ↓</th>' + priceVals.map(p=>'<th>$'+p+'</th>').join('') + '</tr>';
+
+  document.getElementById('sensBody').innerHTML = costVals.map(c => {
+    const isCurCost = Math.abs(c - inp.cost) < 26;
+    return '<tr'+(isCurCost?' class="cur"':'')+'>'+
+      '<td>$'+c+'</td>'+
+      priceVals.map(p => {
+        const isCurPrice = Math.abs(p - inp.price) < 8;
+        const ii = {...inp, cost:c, price:p};
+        const be = breakEvenCV(ii);
+        const label = !isFinite(be)||be<=0 ? '—' : be>80 ? '>80%' : be.toFixed(1)+'%';
+        const cls = !isFinite(be)||be<=0 ? 'td-neg' : be>50 ? 'td-pos' : be>25 ? 'td-warn' : 'td-neg';
+        return '<td class="'+cls+'">'+label+'</td>';
+      }).join('')+
+      '</tr>';
+  }).join('');
+}
+
+// ── REMOVALS CHARTS ──────────────────────────────────────────────────────
+
+function updateMeasVsModelChart(inp) { /* retired */ }
+function updateCrossoverVsModelUncChart(inp) { /* retired */ }
+function updateMeasUncVsNChart(inp) { /* retired */ }
+
+// Chart 1: claim uncertainty (%) vs. years monitored, for several n values
+function updateClaimUncVsYearsChart(inp) {
+  const years   = [1,2,3,4,5,6,7,8,9,10,12,15,20];
+  const nVals   = [10, 20, 30, 50, 100];
+  const colors  = [cv('--red'), cv('--amber'), cv('--blue'), cv('--green'), cv('--text2')];
+  const labels  = ['n=10','n=20','n=30','n=50','n=100'];
+  const threshLine = years.map(() => inp.credThresh * 100);
+  const curYearIdx = years.findIndex(y => y === inp.years);
+
+  const datasets = nVals.map((n, i) => ({
+    label: labels[i],
+    data: years.map(y => {
+      const u = relUnc(n, y, inp.sigma, inp);
+      return isFinite(u) ? Math.min(u * 100, 200) : null;
+    }),
+    borderColor: colors[i], backgroundColor: 'transparent',
+    borderWidth: n === 30 ? 2.5 : 1.5,
+    borderDash: n === 30 ? [] : n < 30 ? [4,3] : [2,2],
+    pointRadius: 0, tension: 0.3
+  }));
+
+  // credibility threshold line
+  datasets.push({
+    data: threshLine, borderColor: cv('--text3'), backgroundColor: 'transparent',
+    borderWidth: 1, borderDash: [6,3], pointRadius: 0
+  });
+
+  // current year marker on n=30 curve
+  const curUnc30 = relUnc(30, inp.years, inp.sigma, inp);
+  datasets.push({
+    data: years.map((y,i) => i===curYearIdx && isFinite(curUnc30) ? curUnc30*100 : null),
+    pointRadius: 7, pointBackgroundColor: cv('--blue'), pointBorderColor: cv('--blue'),
+    borderWidth: 0, showLine: false
+  });
+
+  profitCVChart.data.labels   = years;
+  profitCVChart.data.datasets = datasets;
+  profitCVChart.options.scales.x.title.text = 'Years monitored';
+  profitCVChart.options.scales.y.title.text = 'Claim uncertainty (%)';
+  profitCVChart.options.plugins.legend.display = true;
+  profitCVChart.options.plugins.legend.labels  = { color:cv('--text2'), font:{family:"'IBM Plex Mono',monospace",size:10}, boxWidth:12 };
+  profitCVChart.update();
+
+  const yc30 = yearsToCred(30, inp.sigma, inp);
+  document.getElementById('pcv-note').textContent =
+    `σ/rate = ${inp.socRate>0?(inp.sigma/inp.socRate).toFixed(1):'∞'} yr · combined CV ${(inp.cv*100).toFixed(1)}%. ` +
+    `At n=30, ±${Math.round(inp.credThresh*100)}% credibility reached in ${isFinite(yc30)?yc30.toFixed(1)+'yr':'—'}.`;
+}
+
+// Chart 2: years to credibility vs. n samples (sample-time tradeoff at current field)
+function updateYearsVsNChart(inp) {
+  const ns     = [5,8,10,15,20,30,50,75,100,150,200];
+  const threshPct = Math.round(inp.credThresh * 100);
+  const ycVals = ns.map(n => {
+    const y = yearsToCred(n, inp.sigma, inp);
+    return isFinite(y) ? Math.min(y, 30) : null;
+  });
+  const curN   = 30;
+  const curIdx = ns.findIndex(n => n === curN);
+
+  beChart.data.labels   = ns;
+  beChart.data.datasets = [
+    { data: ycVals, borderColor:cv('--blue'), backgroundColor:'transparent',
+      borderWidth:2, pointRadius:3, pointBackgroundColor:cv('--blue'), tension:0.3 },
+    { data: ns.map((n,i) => i===curIdx ? ycVals[curIdx] : null),
+      pointRadius:7, pointBackgroundColor:cv('--green'), pointBorderColor:cv('--green'),
+      borderWidth:0, showLine:false }
+  ];
+  beChart.options.scales.x.title.text = 'n samples per campaign';
+  beChart.options.scales.y.title.text = `Years to ±${threshPct}% credibility`;
+  beChart.options.plugins.legend.display = false;
+  beChart.update();
+
+  const yc30 = yearsToCred(30, inp.sigma, inp);
+  const yc50 = yearsToCred(50, inp.sigma, inp);
+  document.getElementById('be-note').textContent =
+    `n=30: ${isFinite(yc30)?yc30.toFixed(1)+' yr':'—'} · n=50: ${isFinite(yc50)?yc50.toFixed(1)+' yr':'—'}. ` +
+    `Gains above n=50 diminish rapidly — doubling samples reduces years by only ~30%.`;
+}
+
+// Chart 3: years to credibility vs. spatial CV (field selection lever)
+function updateYearsVsCVChart(inp) {
+  const cvs     = []; for (let c=5;c<=75;c+=5) cvs.push(c);
+  const threshPct = Math.round(inp.credThresh * 100);
+  const nVals   = [10, 30, 50];
+  const colors  = [cv('--amber'), cv('--blue'), cv('--green')];
+  const labels  = ['n=10','n=30','n=50'];
+  const curCVIdx = cvs.findIndex(c => c === Math.round(inp.cvSpatial*100));
+
+  const datasets = nVals.map((n, i) => ({
+    label: labels[i],
+    data: cvs.map(c => {
+      const sig = Math.sqrt((c/100)**2 + inp.cvTech**2) * inp.meanSOC;
+      const y   = yearsToCred(n, sig, inp);
+      return isFinite(y) ? Math.min(y, 30) : null;
+    }),
+    borderColor: colors[i], backgroundColor:'transparent',
+    borderWidth: i===1 ? 2 : 1.2, borderDash: i===0?[4,3]:i===2?[2,2]:[],
+    pointRadius: 0, tension: 0.3
+  }));
+
+  const curYc30 = yearsToCred(30, inp.sigma, inp);
+  datasets.push({
+    data: cvs.map((c,i) => i===curCVIdx && isFinite(curYc30) ? Math.min(curYc30,30) : null),
+    pointRadius:7, pointBackgroundColor:cv('--blue'), pointBorderColor:cv('--blue'),
+    borderWidth:0, showLine:false
+  });
+
+  eonsCVChart.data.labels   = cvs;
+  eonsCVChart.data.datasets = datasets;
+  eonsCVChart.options.scales.x.title.text = 'Spatial CV (%)';
+  eonsCVChart.options.scales.y.title.text = `Years to ±${threshPct}% credibility`;
+  eonsCVChart.options.plugins.legend.display = true;
+  eonsCVChart.options.plugins.legend.labels  = { color:cv('--text2'), font:{family:"'IBM Plex Mono',monospace",size:10}, boxWidth:12 };
+  eonsCVChart.update();
+
+  document.getElementById('eons-cv-note').textContent =
+    `At spatial CV=${Math.round(inp.cvSpatial*100)}% with n=30, credibility in ${isFinite(curYc30)?curYc30.toFixed(1)+' yr':'—'}. ` +
+    `Moving from a CV=50% to CV=25% field halves the monitoring period needed.`;
+}
+
+function updateRemSensTable(inp) {
+  const nVals    = [10, 20, 30, 50, 75, 100];
+  const rateVals = [0.2, 0.3, 0.5, 0.7, 1.0, 1.5];
+  const threshPct = Math.round(inp.credThresh * 100);
+
+  document.getElementById('sens-h2').textContent = `Years to ±${threshPct}% credibility — n samples × sequestration rate`;
+  document.getElementById('sens-p').textContent  =
+    `Each cell shows the monitoring years needed before the removal claim reaches ±${threshPct}% credibility, at current field variability (CV=${(inp.cv*100).toFixed(1)}%). ` +
+    `Green ≤5 yr. Amber 5–10 yr. Red >10 yr.`;
+
+  document.getElementById('sensHead').innerHTML =
+    '<tr><th>n →<br>rate ↓</th>' + nVals.map(n=>'<th>n='+n+'</th>').join('') + '</tr>';
+
+  document.getElementById('sensBody').innerHTML = rateVals.map(r => {
+    const isCurRate = Math.abs(r - inp.socRate) < 0.08;
+    return '<tr'+(isCurRate?' class="cur"':'')+'>'+
+      '<td>'+r.toFixed(1)+' tC/ha/yr</td>'+
+      nVals.map(n => {
+        const ii = {...inp, socRate: r};
+        const y  = yearsToCred(n, inp.sigma, ii);
+        const label = !isFinite(y) ? '—' : y > 30 ? '>30 yr' : y.toFixed(1) + ' yr';
+        const cls   = !isFinite(y)||y>10 ? 'td-neg' : y>5 ? 'td-warn' : 'td-pos';
+        return '<td class="'+cls+(n===30?' cur-cell':'')+'">'+label+'</td>';
+      }).join('')+
+      '</tr>';
+  }).join('');
+}
+
+// ── CONTROLS ──────────────────────────────────────────────────────────────
+function onInput() { updateAll(); }
+
+function setDesign(d) {
+  design = d;
+  document.getElementById('sd-ind').classList.toggle('active', d==='ind');
+  document.getElementById('sd-pair').classList.toggle('active', d==='pair');
+  document.getElementById('sd-note').textContent = d==='ind'
+    ? 'SE = σ·√2/√n. Uses SOC stock snapshot variance.'
+    : 'SE = σ_change/√n. Uses variance of SOC stock change.';
+  updateAll();
+}
+
+function setMeth(m) {
+  meth = m;
+  document.getElementById('meth-vm').classList.toggle('active', m==='vm');
+  document.getElementById('meth-cus').classList.toggle('active', m==='cus');
+  document.getElementById('vm-note').style.display  = m==='vm'  ? '' : 'none';
+  document.getElementById('cus-block').style.display = m==='cus' ? '' : 'none';
+  updateAll();
+}
+
+function setPtype(t) {
+  ptype = t;
+  document.getElementById('pt-carbon').classList.toggle('active', t==='carbon');
+  document.getElementById('pt-removal').classList.toggle('active', t==='removal');
+  document.getElementById('pt-note').textContent = t==='carbon'
+    ? 'VM0042 / Verra · Credit revenue model'
+    : 'GHG Protocol LSR · MRV cost model';
+
+  // Sidebar: show/hide mode-specific controls
+  document.getElementById('meth-section').style.display     = t==='carbon' ? '' : 'none';
+  document.getElementById('rem-conf-section').style.display = t==='removal' ? '' : 'none';
+  document.getElementById('price-wrap').style.display       = t==='carbon' ? '' : 'none';
+  document.getElementById('prec-wrap').style.display        = t==='removal' ? '' : 'none';
+
+  // Main: show/hide metric cards and methodology text
+  document.getElementById('carbon-metrics').style.display = t==='carbon' ? '' : 'none';
+  document.getElementById('rem-metrics').style.display    = t==='removal' ? '' : 'none';
+  document.getElementById('carbon-meth').style.display    = t==='carbon' ? '' : 'none';
+  document.getElementById('rem-meth').style.display       = t==='removal' ? '' : 'none';
+
+  // Main: update kicker / h1 / intro
+  if (t === 'carbon') {
+    document.getElementById('main-kicker').textContent = 'Sampling economics · Field variability · Project viability';
+    document.getElementById('main-h1').innerHTML       = 'How much field variability<br>can your project absorb?';
+    document.getElementById('main-intro').innerHTML    = 'High CV means more samples needed <em>and</em> larger uncertainty deductions on every credit issued. The two effects compound. This tool shows you the full CV landscape — where the break-even cliff is, and how far you are from it.';
+    // Chart panel labels
+    document.getElementById('chart1-title').textContent = 'Maximum profit vs. SOC stock CV';
+    document.getElementById('chart1-desc').textContent  = 'At each CV, profit shown is the best achievable (i.e. at EONS). The break-even CV is where this curve crosses zero — your project\'s tolerance limit for field variability.';
+    document.getElementById('chart1-legend').style.display = '';
+    document.getElementById('chart2-title').textContent = 'Break-even CV vs. credit price';
+    document.getElementById('chart2-desc').textContent  = 'Higher credit prices raise the break-even CV — your project can tolerate more variable fields. Shown for three cost/sample levels.';
+    document.getElementById('chart3-title').textContent = 'EONS vs. CV — optimal sample count';
+    document.getElementById('chart3-desc').textContent  = 'EONS grows with CV. This is how many samples would maximize profit at each variability level — shown for reference.';
+    // Sensitivity table header
+    document.getElementById('sens-h2').textContent = 'Break-even CV — sensitivity to credit price × sample cost';
+    document.getElementById('sens-p').textContent  = 'Each cell shows the maximum SOC stock CV at which the project remains profitable (at EONS). Green = generous tolerance. Red = project only viable at very low field variability. Current inputs highlighted.';
+    // Reset chart legend visibility
+    profitCVChart.options.plugins.legend.display = false;
+    beChart.options.plugins.legend.display       = false;
+  } else {
+    document.getElementById('main-kicker').textContent = 'Removal claim credibility · Measure-remeasure · Corporate LSR';
+    document.getElementById('main-h1').innerHTML       = 'How long before your removal<br>claim is defensible?';
+    document.getElementById('main-intro').innerHTML    = 'In agricultural soils, spatial variability (σ) typically dwarfs the annual sequestration signal. The removal claim only becomes statistically defensible once enough years have accumulated to push the signal above the noise. This tool shows how long that takes — and what levers you have: more samples, lower-variability fields, or a longer monitoring horizon.';
+    document.getElementById('chart1-title').textContent = 'Claim uncertainty vs. years monitored';
+    document.getElementById('chart1-desc').textContent  = 'Relative uncertainty of the cumulative removal claim over time, for different sample counts. The dashed line is your credibility threshold — where each curve crosses it is time to credibility.';
+    document.getElementById('chart1-legend').style.display = 'none';
+    document.getElementById('chart2-title').textContent = 'Years to credibility vs. sample count';
+    document.getElementById('chart2-desc').textContent  = 'You can trade samples for time — more samples per campaign shortens the monitoring period needed. Diminishing returns set in above ~50 samples.';
+    document.getElementById('chart3-title').textContent = 'Years to credibility vs. spatial CV';
+    document.getElementById('chart3-desc').textContent  = 'Field selection is as powerful as sampling intensity. Lower-variability fields reach credibility years earlier at the same sample count.';
+  }
+  updateAll();
+}
+
+function setConf(c) {
+  conf = c;
+  document.getElementById('rc-90').classList.toggle('active', c===90);
+  document.getElementById('rc-95').classList.toggle('active', c===95);
+  document.getElementById('rc-99').classList.toggle('active', c===99);
+  updateAll();
+}
+
+function resetAll() {
+  document.getElementById('sl-cv').value    = 40;
+  document.getElementById('sl-tcv').value   = 5;
+  document.getElementById('sl-mean').value  = 30;
+  document.getElementById('sl-cost').value  = 150;
+  document.getElementById('sl-area').value  = 500;
+  document.getElementById('sl-soc').value   = 0.5;
+  document.getElementById('sl-years').value = 5;
+  document.getElementById('sl-price').value = 30;
+  document.getElementById('sl-ci').value    = 90;
+  document.getElementById('sl-prec').value  = 50;
+  conf = 95;
+  setDesign('ind');
+  setMeth('vm');
+  setPtype(ptype); // re-apply current mode to refresh UI, keep user's mode choice
+}
+
+// ── THEME ─────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const dark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', dark?'light':'dark');
+  document.getElementById('themeLabel').textContent = dark?'Dark':'Light';
+  setTimeout(()=>{ profitCVChart.destroy(); beChart.destroy(); eonsCVChart.destroy(); initCharts(); }, 220);
+}
+
+// ── TOOLTIP ───────────────────────────────────────────────────────────────
+const tipBox = document.getElementById('tip-box');
+document.querySelectorAll('.info-icon').forEach(el=>{
+  el.addEventListener('mouseenter', e=>{tipBox.textContent=el.dataset.tip;tipBox.style.display='block';moveTip(e);});
+  el.addEventListener('mousemove', moveTip);
+  el.addEventListener('mouseleave', ()=>{tipBox.style.display='none';});
+});
+function moveTip(e){tipBox.style.left=Math.min(e.clientX+12,window.innerWidth-260)+'px';tipBox.style.top=Math.min(e.clientY+12,window.innerHeight-80)+'px';}
+
+// ── NAV ───────────────────────────────────────────────────────────────────
+function openSiteMenu()  { document.getElementById('siteMenu').classList.add('open'); }
+function closeSiteMenu() { document.getElementById('siteMenu').classList.remove('open'); }
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+initCharts();
+</script>
+</body>
+</html>
