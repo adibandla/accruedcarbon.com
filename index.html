@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Accrued Carbon</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:ital,wght@0,300;0,400;0,500;1,400&family=EB+Garamond:wght@400&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -27,17 +28,25 @@ body { min-height: 100vh; display: flex; flex-direction: column; align-items: ce
 .page { width: 100%; max-width: 1080px; display: flex; flex-direction: column; min-height: 100vh; }
 a { color: inherit; text-decoration: none; }
 
-nav { display: flex; justify-content: space-between; align-items: center; height: 64px; padding: 0 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 100; }
-.nav-logo { display: flex; flex-direction: column; gap: 4px; }
-.nav-logo a { font-family: var(--serif); font-size: 18px; font-weight: 400; color: var(--text); line-height: 1; white-space: nowrap; }
-.nav-tagline { font-family: var(--sans); font-size: 11px; font-style: italic; font-weight: 300; color: var(--muted); white-space: nowrap; }
-.nav-links { display: flex; align-items: center; margin-left: auto; margin-right: 0; }
-.nav-link { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--muted); text-decoration: none; padding: 4px 14px; border-right: 1px solid var(--border); line-height: 1; transition: color 0.15s; }
-.nav-link:first-child { border-left: 1px solid var(--border); }
-.nav-link:hover { color: var(--text); }
-.nav-link.active { color: var(--text); }
-.nav-theme-btn { background: none; border: none; color: var(--muted); font-size: 11px; font-family: var(--mono); padding: 4px 0; cursor: pointer; margin-left: 16px; transition: color 0.15s; }
+nav { display: flex; align-items: center; height: 53px; padding: 0 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 200; gap: 20px; }
+.site-hamburger { background: none; border: none; cursor: pointer; color: var(--text); padding: 4px; display: flex; align-items: center; flex-shrink: 0; }
+.site-hamburger svg { width: 20px; height: 20px; stroke: var(--text); stroke-width: 1.5; }
+.site-hamburger:hover { opacity: 0.5; }
+.site-logo { font-family: var(--serif); font-size: 17px; font-weight: 400; color: var(--text); text-decoration: none; flex: 1; }
+.nav-theme-btn { background: none; border: none; color: var(--muted); font-size: 11px; font-family: var(--mono); padding: 4px 0; cursor: pointer; transition: color 0.15s; }
 .nav-theme-btn:hover { color: var(--text); }
+.site-menu { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 300; flex-direction: column; padding: 0; }
+.site-menu.open { display: flex; }
+.site-menu-top { display: flex; justify-content: space-between; align-items: center; height: 53px; padding: 0 24px; border-bottom: 1px solid var(--border); }
+.site-menu-logo { font-family: var(--serif); font-size: 17px; font-weight: 400; color: var(--text); }
+.site-menu-close { background: none; border: none; cursor: pointer; color: var(--text); padding: 4px; display: flex; align-items: center; }
+.site-menu-close:hover { opacity: 0.5; }
+.site-menu-close svg { width: 20px; height: 20px; stroke: var(--text); stroke-width: 1.5; }
+.site-menu-links { list-style: none; padding: 0 24px; }
+.site-menu-links li { border-bottom: 1px solid var(--border); }
+.site-menu-links li a { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; font-size: clamp(28px,4vw,44px); font-weight: 400; color: var(--text); text-decoration: none; letter-spacing: -.02em; line-height: 1.1; transition: opacity .15s; }
+.site-menu-links li a:hover { opacity: 0.4; }
+.site-menu-arr { font-size: 0.5em; color: var(--muted); }
 
 
 .hero { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 64px 24px 48px; gap: 40px; border-bottom: 1px solid var(--border); }
@@ -93,17 +102,26 @@ footer { padding: 18px 24px; display: flex; justify-content: space-between; alig
 <body>
 
 <div class="page">
+  <div class="site-menu" id="siteMenu">
+    <div class="site-menu-top">
+      <span class="site-menu-logo">[accrued] carbon</span>
+      <button class="site-menu-close" onclick="closeSiteMenu()" aria-label="Close menu">
+        <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+      </button>
+    </div>
+    <ul class="site-menu-links">
+      <li><a href="about.html">About <span class="site-menu-arr">↗</span></a></li>
+      <li><a href="#">Work <span class="site-menu-arr">↗</span></a></li>
+      <li><a href="soc-permanence-tool.html">Tools <span class="site-menu-arr">↗</span></a></li>
+      <li><a href="#">Writing <span class="site-menu-arr">↗</span></a></li>
+    </ul>
+  </div>
+
   <nav>
-    <div class="nav-logo">
-      <a href="index.html">[accrued] carbon</a>
-      <span class="nav-tagline">Don't let your soil carbon gains turn into a liability.</span>
-    </div>
-    <div class="nav-links">
-      <a href="#" class="nav-link">About</a>
-      <a href="#" class="nav-link">Work</a>
-      <a href="soc-permanence-tool.html" class="nav-link">Tools</a>
-      <a href="#" class="nav-link">Writing</a>
-    </div>
+    <button class="site-hamburger" onclick="openSiteMenu()" aria-label="Open menu">
+      <svg viewBox="0 0 24 24" fill="none"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="13" x2="21" y2="13"/><line x1="3" y1="19" x2="21" y2="19"/></svg>
+    </button>
+    <a href="index.html" class="site-logo">[accrued] carbon</a>
     <button class="nav-theme-btn" onclick="toggleTheme()" id="themeNavBtn">Light</button>
   </nav>
 
@@ -157,7 +175,7 @@ footer { padding: 18px 24px; display: flex; justify-content: space-between; alig
     </div>
     <div>
       <div class="bottom-label">Contact</div>
-      <a href="mailto:hello@accruedcarbon.com" class="bottom-link">aditya@accruedcarbon.com ↗</a>
+      <a href="mailto:hello@accruedcarbon.com" class="bottom-link">hello@accruedcarbon.com ↗</a>
       <a href="https://www.linkedin.com/in/adibandla" class="bottom-link">LinkedIn ↗</a>
       <a href="#" class="bottom-link">GitHub ↗</a>
     </div>
@@ -185,6 +203,8 @@ function updateSvgColors() {
   if (upper) upper.setAttribute('stroke', lineColor);
 }
 
+function openSiteMenu() { document.getElementById('siteMenu').classList.add('open'); }
+function closeSiteMenu() { document.getElementById('siteMenu').classList.remove('open'); }
 function toggleTheme() {
   var html = document.documentElement;
   var dark = html.getAttribute('data-theme') !== 'dark';

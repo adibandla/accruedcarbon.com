@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CUE × MAOC Accrual — Accrued Carbon</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:ital,wght@0,300;0,400;0,500;1,400&family=EB+Garamond:wght@400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -26,25 +27,33 @@ html{background:var(--bg);color:var(--text);font-family:var(--sans);transition:b
 body{min-height:100vh;font-size:15px;line-height:1.8;}
 a{color:inherit;text-decoration:none;}
 
-/* ── NAV ── */
-nav{display:flex;justify-content:space-between;align-items:center;height:64px;padding:0 28px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:100;}
-.nav-logo{display:flex;flex-direction:column;gap:4px;}
-.nav-logo a{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--text);line-height:1;white-space:nowrap;}
-.nav-tagline{font-family:var(--sans);font-size:11px;font-style:italic;font-weight:300;color:var(--text3);white-space:nowrap;}
-.nav-links{display:flex;align-items:center;margin-left:auto;margin-right:0;}
-.nav-link{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--text2);padding:4px 14px;border-right:1px solid var(--border);line-height:1;transition:color 0.15s;}
-.nav-link:first-child{border-left:1px solid var(--border);}
-.nav-link:hover{color:var(--text);}
-.nav-link.active{color:var(--text);}
-.nav-theme-btn{background:none;border:none;color:var(--text3);font-size:11px;font-family:var(--mono);padding:4px 0;cursor:pointer;margin-left:16px;transition:color 0.15s;}
-.nav-theme-btn:hover{color:var(--text);}
+/* ── SITE NAV ── */
+.site-nav{display:flex;align-items:center;height:53px;padding:0 28px;border-bottom:1px solid var(--border);gap:20px;position:sticky;top:0;background:var(--bg);z-index:200;}
+.site-hamburger{background:none;border:none;cursor:pointer;color:var(--text);padding:4px;display:flex;align-items:center;flex-shrink:0;}
+.site-hamburger svg{width:20px;height:20px;stroke:var(--text);stroke-width:1.5;}
+.site-hamburger:hover{opacity:0.5;}
+.site-logo{font-family:var(--serif);font-size:17px;font-weight:400;color:var(--text);text-decoration:none;flex:1;}
+.site-theme-btn{background:none;border:none;color:var(--text3);font-size:11px;font-family:var(--mono);letter-spacing:.04em;padding:4px 0;cursor:pointer;transition:all .15s;}
+.site-theme-btn:hover{color:var(--text);}
+.site-menu{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;flex-direction:column;padding:0;}
+.site-menu.open{display:flex;}
+.site-menu-top{display:flex;justify-content:space-between;align-items:center;height:53px;padding:0 28px;border-bottom:1px solid var(--border);}
+.site-menu-logo{font-family:var(--serif);font-size:17px;font-weight:400;color:var(--text);}
+.site-menu-close{background:none;border:none;cursor:pointer;color:var(--text);padding:4px;display:flex;align-items:center;}
+.site-menu-close:hover{opacity:0.5;}
+.site-menu-close svg{width:20px;height:20px;stroke:var(--text);stroke-width:1.5;}
+.site-menu-links{list-style:none;padding:0 28px;}
+.site-menu-links li{border-bottom:1px solid var(--border);}
+.site-menu-links li a{display:flex;align-items:center;justify-content:space-between;padding:20px 0;font-size:clamp(28px,4vw,44px);font-weight:400;color:var(--text);text-decoration:none;letter-spacing:-.02em;line-height:1.1;transition:opacity .15s;}
+.site-menu-links li a:hover{opacity:0.4;}
+.site-menu-arr{font-size:0.5em;color:var(--text2);}
 
 /* ── TWO-COLUMN APP LAYOUT ── */
-.app-layout{display:grid;grid-template-columns:440px 1fr;min-height:calc(100vh - 64px);}
+.app-layout{display:grid;grid-template-columns:440px 1fr;min-height:calc(100vh - 53px);}
 @media(max-width:900px){.app-layout{grid-template-columns:1fr;}}
 
 /* ── CONTROLS SIDEBAR ── */
-.controls-sidebar{border-right:1px solid var(--border);padding:40px 40px 80px;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;}
+.controls-sidebar{border-right:1px solid var(--border);padding:40px 40px 80px;position:sticky;top:53px;height:calc(100vh - 53px);overflow-y:auto;}
 .article-kicker{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:16px;}
 .controls-sidebar h1{font-size:2.2rem;font-weight:400;letter-spacing:-.03em;line-height:1.05;color:var(--text);margin-bottom:16px;}
 .article-intro{font-size:14px;line-height:1.75;color:var(--text2);margin-bottom:0;}
@@ -121,25 +130,55 @@ input[type=range]::-moz-range-thumb{width:10px;height:10px;border-radius:50%;bac
 .chart-container{position:relative;width:100%;height:260px;}
 .chart-note{font-family:var(--mono);font-size:12px;color:var(--text3);margin-top:10px;padding-top:10px;border-top:1px solid var(--border);line-height:1.6;}
 
+/* section fold */
+.section-fold{border-top:1px solid var(--border);margin-top:20px;}
+.section-fold-header{display:flex;align-items:baseline;justify-content:space-between;padding:12px 0;cursor:pointer;user-select:none;}
+.section-fold-label{font-family:var(--mono);font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--text2);transition:color .15s;}
+.section-fold-header:hover .section-fold-label{color:var(--text);}
+.section-fold-plus{font-family:var(--mono);font-size:20px;font-weight:300;color:var(--text3);line-height:1;transition:color .15s;}
+.section-fold.open .section-fold-plus{color:var(--text);}
+.section-fold-header:hover .section-fold-plus{color:var(--text2);}
+.section-fold-body{display:none;padding-bottom:40px;}
+.section-fold.open .section-fold-body{display:block;}
+
+/* references */
+.refs-grid{display:grid;grid-template-columns:28px 1fr;gap:4px 16px;margin-top:16px;}
+.ref-num{font-family:var(--mono);font-size:12px;color:var(--text3);padding-top:2px;text-align:right;}
+.ref-text{font-size:14px;color:var(--text2);line-height:1.6;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.ref-text a{color:var(--text2);text-decoration:underline;text-decoration-color:var(--border2);}
+.ref-text a:hover{color:var(--text);}
+
 /* footer */
-footer{border-top:1px solid var(--border);padding:24px 40px;}
-.footer-text{font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.9;}
+.site-footer{border-top:1px solid var(--border);padding:32px 56px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;}
+.footer-col-label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+.footer-col-val{font-size:14px;color:var(--text2);}
+.footer-col-val a{color:var(--text2);text-decoration:none;}
+.footer-col-val a:hover{color:var(--text);}
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="nav-logo">
-    <a href="index.html">[accrued] carbon</a>
-    <span class="nav-tagline">Don't let your soil carbon gains turn into a liability.</span>
+<div class="site-menu" id="siteMenu">
+  <div class="site-menu-top">
+    <span class="site-menu-logo">[accrued] carbon</span>
+    <button class="site-menu-close" onclick="closeSiteMenu()" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
   </div>
-  <div class="nav-links">
-    <a href="#" class="nav-link">About</a>
-    <a href="#" class="nav-link">Work</a>
-    <a href="soc-permanence-tool.html" class="nav-link active">Tools</a>
-    <a href="#" class="nav-link">Writing</a>
-  </div>
-  <button class="nav-theme-btn" onclick="toggleTheme()" id="themeNavBtn">Light</button>
+  <ul class="site-menu-links">
+    <li><a href="about.html">About <span class="site-menu-arr">↗</span></a></li>
+    <li><a href="#">Work <span class="site-menu-arr">↗</span></a></li>
+    <li><a href="soc-permanence-tool.html">Tools <span class="site-menu-arr">↗</span></a></li>
+    <li><a href="#">Writing <span class="site-menu-arr">↗</span></a></li>
+  </ul>
+</div>
+
+<nav class="site-nav">
+  <button class="site-hamburger" onclick="openSiteMenu()" aria-label="Open menu">
+    <svg viewBox="0 0 24 24" fill="none"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="13" x2="21" y2="13"/><line x1="3" y1="19" x2="21" y2="19"/></svg>
+  </button>
+  <a href="index.html" class="site-logo">[accrued] carbon</a>
+  <button class="site-theme-btn" onclick="toggleTheme()" id="themeNavBtn">Light</button>
 </nav>
 
 <div class="app-layout">
@@ -224,8 +263,8 @@ footer{border-top:1px solid var(--border);padding:24px 40px;}
           <span class="caveat-fold-plus">+</span>
         </div>
         <div class="caveat-fold-body">
-          <p>In <strong>natural ecosystems</strong>, CUE can be estimated from climate variables (temperature, precipitation, pH) — it ranges from ~0.27 in high-productivity biomes to ~0.52 in arid systems (Cui et al. 2026).</p>
-          <p>In <strong>managed agricultural systems</strong>, that relationship breaks down. Only 11 studies globally have measured how tillage practice affects CUE (Holm et al. 2025), none confirming a link to SOC gains. In agricultural soils, MAOC formation is driven by <strong>mineral saturation deficit, not CUE alone</strong> (Sokol et al. 2025). The CUE slider reflects this uncertainty — use it to explore sensitivity, not to predict.</p>
+          <p>In <strong>natural ecosystems</strong>, CUE can be estimated from climate variables (temperature, precipitation, pH) — it ranges from ~0.27 in high-productivity biomes to ~0.52 in arid systems [4].</p>
+          <p>In <strong>managed agricultural systems</strong>, that relationship breaks down. Only 11 studies globally have measured how tillage practice affects CUE [2], none confirming a link to SOC gains. In agricultural soils, MAOC formation is driven by <strong>mineral saturation deficit, not CUE alone</strong> [1]. The CUE slider reflects this uncertainty — use it to explore sensitivity, not to predict.</p>
           <p>Model: annual MAOC increment = CUE × C inputs, capped at remaining capacity. Excess to POM. Does not model MAOC turnover or priming.</p>
         </div>
       </div>
@@ -336,20 +375,53 @@ footer{border-top:1px solid var(--border);padding:24px 40px;}
       </div>
     </div>
 
+    <!-- REFERENCES -->
+    <div class="section-fold" id="fold-refs">
+      <div class="section-fold-header" onclick="toggleFold('fold-refs')">
+        <span class="section-fold-label">References</span>
+        <span class="section-fold-plus">+</span>
+      </div>
+      <div class="section-fold-body">
+      <div class="refs-grid">
+        <div class="ref-num">[1]</div><div class="ref-text">Sokol, N.W. et al. (2025). Microbe-mineral interactions dominate mineral-associated organic carbon formation in agricultural soils. <em>Science Advances</em>, eadv9482. <a href="https://doi.org/10.1126/sciadv.adv9482">doi.org/10.1126/sciadv.adv9482</a></div>
+        <div class="ref-num">[2]</div><div class="ref-text">Holm, S. et al. (2025). Tillage and microbial carbon use efficiency: a systematic review. <em>Journal of Sustainable Agriculture &amp; Environment</em>.</div>
+        <div class="ref-num">[3]</div><div class="ref-text">Kallenbach, C.M. et al. (2019). Microbial physiology and necromass regulate agricultural soil carbon accumulation. <em>Frontiers in Microbiology</em>. <a href="https://doi.org/10.3389/fmicb.2019.01594">doi.org/10.3389/fmicb.2019.01594</a></div>
+        <div class="ref-num">[4]</div><div class="ref-text">Cui, Y. et al. (2026). Global patterns in microbial carbon use efficiency driven by soil abiotic conditions. <em>Science Advances</em>, eadz5319. <a href="https://doi.org/10.1126/sciadv.adz5319">doi.org/10.1126/sciadv.adz5319</a></div>
+        <div class="ref-num">[5]</div><div class="ref-text">Georgiou, K. et al. (2022). Global stocks and capacity of mineral-associated soil organic carbon. <em>Nature Communications</em>, 13, 3797. <a href="https://doi.org/10.1038/s41467-022-31540-9">doi.org/10.1038/s41467-022-31540-9</a></div>
+        <div class="ref-num">[6]</div><div class="ref-text">Hassink, J. (1997). The capacity of soils to preserve organic C and N by their association with clay and silt particles. <em>Soil Biology and Biochemistry</em>, 29(10). <a href="https://doi.org/10.1016/S0038-0717(97)00060-X">doi.org/10.1016/S0038-0717(97)00060-X</a></div>
+      </div>
+      </div>
+    </div>
+
   </main>
 
 </div>
 
-<footer>
-  <div class="footer-text">
-    Sources: Sokol N.W. et al. (2025) <em>Sci. Adv.</em> eadv9482 · Holm S. et al. (2025) <em>J. Sustainable Ag. &amp; Environ.</em> ·
-    Kallenbach C.M. et al. (2019) <em>Front. Microbiol.</em> · Cui Y. et al. (2026) <em>Sci. Adv.</em> eadz5319 ·
-    Georgiou K. et al. (2022) <em>Nat. Comms.</em> · Hassink J. (1997) <em>Soil Biol. Biochem.</em> ·
-    Tool for illustrative purposes only; not investment advice.
+<footer class="site-footer">
+  <div>
+    <div class="footer-col-label">Contact</div>
+    <div class="footer-col-val"><a href="mailto:hello@accruedcarbon.com">hello@accruedcarbon.com</a></div>
+  </div>
+  <div>
+    <div class="footer-col-label">Site</div>
+    <div class="footer-col-val"><a href="/">accruedcarbon.com</a></div>
+  </div>
+  <div>
+    <div class="footer-col-label">Status</div>
+    <div class="footer-col-val">Under active development — use with care.</div>
   </div>
 </footer>
 
 <script>
+function toggleFold(id) {
+  const el = document.getElementById(id);
+  const isOpen = el.classList.toggle('open');
+  const plus = el.querySelector('.section-fold-plus');
+  if (plus) plus.textContent = isOpen ? '×' : '+';
+}
+
+function openSiteMenu() { document.getElementById('siteMenu').classList.add('open'); }
+function closeSiteMenu() { document.getElementById('siteMenu').classList.remove('open'); }
 function toggleTheme() {
   const html = document.documentElement;
   const dark = html.getAttribute('data-theme') !== 'dark';
