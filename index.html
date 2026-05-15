@@ -134,7 +134,7 @@ footer { padding: 18px 24px; display: flex; justify-content: space-between; alig
         <li><a href="#">Work</a></li>
         <li><a href="soc-permanence-tool.html">Tools</a></li>
         <li><a href="#">Writing</a></li>
-        <li><a href="mailto:aditya@accruedcarbon.com">Contact</a></li>
+        <li><a href="#contact">Contact</a></li>
       </ul>
     </div>
     <div class="hero-svg-col">
@@ -165,7 +165,7 @@ footer { padding: 18px 24px; display: flex; justify-content: space-between; alig
     </div>
   </div>
 
-  <div class="bottom-section">
+  <div class="bottom-section" id="contact">
     <div>
       <div class="bottom-label">Work</div>
       <a href="soc-permanence-tool.html" class="bottom-link">Carbon permanence assessment ↗</a>
@@ -176,7 +176,7 @@ footer { padding: 18px 24px; display: flex; justify-content: space-between; alig
     <div>
       <div class="bottom-label">Contact</div>
       <a href="mailto:aditya@accruedcarbon.com" class="bottom-link">aditya@accruedcarbon.com ↗</a>
-      <a href="https://calendly.com/accruedcarbon/lets-talk-carbon" class="bottom-link" target="_blank">Book a call ↗</a>
+      <a href="https://calendly.com/accruedcarbon/lets-talk-carbon" class="bottom-link" target="_blank" rel="noopener noreferrer">Book a call ↗</a>
       <a href="https://www.linkedin.com/in/adibandla" class="bottom-link">LinkedIn ↗</a>
       <a href="#" class="bottom-link">GitHub ↗</a>
     </div>
@@ -220,18 +220,7 @@ function toggleTheme() {
 }
 
 var coordsEl = document.getElementById('coords');
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(
-    function(p) {
-      var x = Math.abs(Math.round(p.coords.longitude * 10)).toString().padStart(4,'0');
-      var y = Math.abs(Math.round(p.coords.latitude * 10)).toString().padStart(4,'0');
-      coordsEl.textContent = 'X,Y: ' + x + ',' + y;
-    },
-    function() { coordsEl.textContent = 'X,Y: 7938,4365'; }
-  );
-} else {
-  coordsEl.textContent = 'X,Y: 7938,4365';
-}
+coordsEl.textContent = 'X,Y: 7938,4365';
 
 updateSvgColors();
 </script>
