@@ -485,8 +485,8 @@ p{color:var(--text2);margin-bottom:14px;max-width:64ch;}
     <p>Both use the same underlying model. The uncertainty deduction follows <strong>VM0042 Eq. 65</strong>:</p>
     <p style="font-family:var(--mono);font-size:13px;color:var(--text);padding:12px 16px;border:1px solid var(--border);display:block;line-height:2.2;margin:8px 0 16px;">
       unc_deduction (%) = (σ · f / √n / δ) × 100 × M<br>
-      EONS = [G · p · M · σ · f / (2c)]^(2/3)<br>
-      Break-even CV = 2/(M·f·3√3) · √(G·p/c) / mean_stock × 100%
+      EONS = [G · p · M · σ · f / (2c · δ)]^(2/3)<br>
+      Break-even CV = 2δ/(M·f·3√3) · √(G·p/c) / mean_stock × 100%
     </p>
     <p>where <em>σ</em> = std dev of SOC stocks (tC/ha), <em>δ</em> = expected SOC change (tC/ha), <em>f</em> = √2 (independent) or 1 (paired), <em>M</em> = methodology multiplier (0.4307 for VM0042), <em>G</em> = gross tCO₂e, <em>p</em> = credit price, <em>c</em> = cost per sample.</p>
     <p>The break-even CV formula is derived analytically from setting profit at EONS equal to zero. It shows that break-even CV scales with √(G·p/c) — doubling gross revenue or halving sample cost increases the break-even CV by √2 ≈ 41%.</p>
@@ -602,8 +602,9 @@ function profitAtEONS(sigma, inp) {
 }
 
 function calcEONS(sigma, inp) {
-  const { gross, price, cost, mf, f } = inp;
-  const inner = gross * price * mf * sigma * f / (2 * cost);
+  const { gross, delta, price, cost, mf, f } = inp;
+  // delta cancels from the uncertainty cost term, so EONS = [G·p·M·σ·f/(2c·δ)]^(2/3)
+  const inner = gross * price * mf * sigma * f / (2 * cost * delta);
   if (inner <= 0) return 1;
   return Math.max(1, Math.round(Math.pow(inner, 2/3)));
 }
@@ -622,9 +623,10 @@ function uncAtEONS(sigma, inp) {
 // EONS_be = (G*p/(3*c))^1 and also EONS_be = (G*p*mf*sigma_be*f/(2c))^(2/3)
 // Solving: sigma_be = 2/(mf*f*3√3) * √(G*p/c)
 function breakEvenSigma(inp) {
-  const { gross, price, cost, mf, f } = inp;
+  const { gross, delta, price, cost, mf, f } = inp;
   if (mf <= 0 || f <= 0 || cost <= 0) return Infinity;
-  return (2 / (mf * f * 3 * Math.sqrt(3))) * Math.sqrt(gross * price / cost);
+  // σ_be = 2δ/(M·f·3√3) · √(G·p/c)  — delta factor from G·p = 3c·EONS_be derivation
+  return (2 * delta / (mf * f * 3 * Math.sqrt(3))) * Math.sqrt(gross * price / cost);
 }
 function breakEvenCV(inp) {
   const sigBE = breakEvenSigma(inp);
