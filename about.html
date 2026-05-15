@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Accrued Carbon</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:ital,wght@0,300;0,400;0,500;1,400&family=EB+Garamond:wght@400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#ffffff;
+  --text:#1b1e23;--text2:#808080;--text3:#b9b9bb;
+  --border:#e0e0e0;--border2:#b9b9bb;
+  --sans:'Inter',-apple-system,sans-serif;
+  --serif:'EB Garamond',Georgia,serif;
+  --mono:'IBM Plex Mono',monospace;
+  --green:#7eb36a;--teal:#64b9c4;--blue:#85a2f7;--amber:#e5c07b;
+}
+[data-theme="dark"]{
+  --bg:#1b1e23;--text:#ebebec;--text2:#808080;--text3:#4a4b4e;
+  --border:#393a3d;--border2:#4a4b4e;
+}
+html{background:var(--bg);color:var(--text);font-family:var(--sans);transition:background 0.2s,color 0.2s;}
+body{min-height:100vh;font-size:15px;line-height:1.8;}
+a{color:inherit;text-decoration:none;}
+
+/* ── SITE NAV ── */
+.site-nav{display:flex;align-items:center;height:53px;padding:0 28px;border-bottom:1px solid var(--border);gap:20px;position:sticky;top:0;background:var(--bg);z-index:200;}
+.site-hamburger{background:none;border:none;cursor:pointer;color:var(--text);padding:4px;display:flex;align-items:center;flex-shrink:0;}
+.site-hamburger svg{width:20px;height:20px;stroke:var(--text);stroke-width:1.5;}
+.site-hamburger:hover{opacity:0.5;}
+.site-logo{font-family:var(--serif);font-size:17px;font-weight:400;color:var(--text);text-decoration:none;flex:1;}
+.site-theme-btn{background:none;border:none;color:var(--text3);font-size:11px;font-family:var(--mono);letter-spacing:.04em;padding:4px 0;cursor:pointer;transition:all .15s;}
+.site-theme-btn:hover{color:var(--text);}
+/* ── SITE MENU OVERLAY ── */
+.site-menu{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;flex-direction:column;padding:0;}
+.site-menu.open{display:flex;}
+.site-menu-top{display:flex;justify-content:space-between;align-items:center;height:53px;padding:0 28px;border-bottom:1px solid var(--border);}
+.site-menu-logo{font-family:var(--serif);font-size:17px;font-weight:400;color:var(--text);}
+.site-menu-close{background:none;border:none;cursor:pointer;color:var(--text);padding:4px;display:flex;align-items:center;}
+.site-menu-close:hover{opacity:0.5;}
+.site-menu-close svg{width:20px;height:20px;stroke:var(--text);stroke-width:1.5;}
+.site-menu-links{list-style:none;padding:0 28px;}
+.site-menu-links li{border-bottom:1px solid var(--border);}
+.site-menu-links li a{display:flex;align-items:center;justify-content:space-between;padding:20px 0;font-size:clamp(28px,4vw,44px);font-weight:400;color:var(--text);text-decoration:none;letter-spacing:-.02em;line-height:1.1;transition:opacity .15s;}
+.site-menu-links li a:hover{opacity:0.4;}
+.site-menu-arr{font-size:0.5em;color:var(--text2);}
+
+/* ── LAYOUT ── */
+.page{max-width:1080px;margin:0 auto;padding:0 40px;}
+
+/* ── NAME HEADER ── */
+.name-header{display:flex;align-items:baseline;justify-content:space-between;padding:32px 0 24px;border-bottom:1px solid var(--border);}
+.name-header h1{font-size:clamp(32px,4vw,52px);font-weight:400;letter-spacing:-.03em;line-height:1;}
+.name-title{text-align:right;}
+.name-title-line{font-family:var(--mono);font-size:13px;letter-spacing:.04em;color:var(--text2);line-height:1.9;}
+
+/* ── BIO BAND ── */
+.bio-band{display:grid;grid-template-columns:200px 1fr;gap:64px;padding:32px 0;border-bottom:1px solid var(--border);}
+@media(max-width:680px){.bio-band{grid-template-columns:1fr;gap:32px;}}
+
+.photo-col{display:flex;flex-direction:column;gap:20px;}
+.photo-wrap{width:200px;height:200px;overflow:hidden;flex-shrink:0;border-radius:50%;background:#7a5230;position:relative;}
+.photo-wrap img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;filter:grayscale(100%) contrast(1.1) brightness(0.95);mix-blend-mode:luminosity;}
+.contact-links{display:flex;flex-direction:column;}
+.contact-link{font-family:var(--mono);font-size:13px;color:var(--text2);border-bottom:1px solid var(--border);padding:7px 0;transition:color .15s;}
+.contact-link:last-child{border-bottom:none;}
+.contact-link:hover{color:var(--text);}
+
+.bio-col{display:flex;flex-direction:column;gap:24px;}
+.lede{font-size:clamp(20px,2.4vw,28px);font-weight:400;letter-spacing:-.02em;line-height:1.2;color:var(--text);}
+.bio-body{font-size:15px;font-weight:300;color:var(--text2);line-height:1.85;}
+.bio-body p+p{margin-top:14px;}
+.bio-body strong{color:var(--text);font-weight:500;}
+.bio-body em{font-style:italic;}
+
+/* ── AUDIENCE GRID ── */
+.audience-section{padding:24px 0;border-bottom:1px solid var(--border);}
+.section-label{font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);margin-bottom:16px;}
+.audience-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid var(--border);border-left:1px solid var(--border);}
+@media(max-width:720px){.audience-grid{grid-template-columns:1fr;}}
+.aud-cell{padding:16px 20px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+.aud-who{font-family:var(--mono);font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--text2);margin-bottom:8px;}
+.aud-what{font-size:15px;font-weight:300;color:var(--text2);line-height:1.65;}
+.aud-what strong{color:var(--text);font-weight:500;}
+
+/* ── REFS GRID ── */
+.refs-grid{display:grid;grid-template-columns:28px 1fr;gap:4px 16px;margin-top:8px;}
+.ref-num{font-family:var(--mono);font-size:12px;color:var(--text3);padding-top:2px;text-align:right;}
+.ref-text{font-size:15px;color:var(--text2);line-height:1.6;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.ref-text a{color:var(--text2);text-decoration:underline;text-decoration-color:var(--border2);}
+.ref-text a:hover{color:var(--text);}
+
+/* ── CREDENTIALS FOLD ── */
+.creds-section{padding:0 0 24px;}
+.section-fold{border-top:1px solid var(--border);}
+.section-fold-header{display:flex;align-items:baseline;justify-content:space-between;padding:16px 0;cursor:pointer;user-select:none;}
+.section-fold-label{font-family:var(--mono);font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--text2);transition:color .15s;}
+.section-fold-header:hover .section-fold-label{color:var(--text2);}
+.section-fold-plus{font-family:var(--mono);font-size:20px;font-weight:300;color:var(--text3);line-height:1;}
+.section-fold.open .section-fold-plus{color:var(--text);}
+.section-fold-body{display:none;padding-bottom:16px;}
+.section-fold.open .section-fold-body{display:block;}
+
+.creds-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px 64px;padding-top:12px;}
+@media(max-width:640px){.creds-grid{grid-template-columns:1fr;}}
+.cred-group-label{font-family:var(--mono);font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--text2);margin-bottom:8px;}
+.cred-item{font-size:15px;font-weight:300;color:var(--text2);line-height:1.6;padding:6px 0;border-bottom:1px solid var(--border);}
+.cred-item:last-child{border-bottom:none;}
+.cred-item em{font-style:italic;}
+
+/* ── FOOTER ── */
+.site-footer{border-top:1px solid var(--border);padding:32px 40px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;}
+@media(max-width:640px){.site-footer{grid-template-columns:1fr;padding:24px 40px;}}
+.footer-col-label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+.footer-col-val{font-size:14px;color:var(--text2);}
+.footer-col-val a{color:var(--text2);}
+.footer-col-val a:hover{color:var(--text);}
+</style>
+</head>
+<body>
+
+<div class="site-menu" id="siteMenu">
+  <div class="site-menu-top">
+    <span class="site-menu-logo">[accrued] carbon</span>
+    <button class="site-menu-close" onclick="closeSiteMenu()" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+  </div>
+  <ul class="site-menu-links">
+    <li><a href="about.html">About <span class="site-menu-arr">↗</span></a></li>
+    <li><a href="#">Work <span class="site-menu-arr">↗</span></a></li>
+    <li><a href="soc-permanence-tool.html">Tools <span class="site-menu-arr">↗</span></a></li>
+    <li><a href="#">Writing <span class="site-menu-arr">↗</span></a></li>
+  </ul>
+</div>
+
+<nav class="site-nav">
+  <button class="site-hamburger" onclick="openSiteMenu()" aria-label="Open menu">
+    <svg viewBox="0 0 24 24" fill="none"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="13" x2="21" y2="13"/><line x1="3" y1="19" x2="21" y2="19"/></svg>
+  </button>
+  <a href="index.html" class="site-logo">[accrued] carbon</a>
+  <button class="site-theme-btn" onclick="toggleTheme()" id="themeNavBtn">Light</button>
+</nav>
+
+<div class="page">
+
+  <!-- NAME HEADER -->
+  <div class="name-header">
+    <h1>Aditya Bandla</h1>
+    <div class="name-title">
+      <div class="name-title-line">Nature-based Solutions Scientist</div>
+      <div class="name-title-line">Soil Carbon Specialist</div>
+    </div>
+  </div>
+
+  <!-- BIO -->
+  <div class="bio-band">
+
+    <div class="photo-col">
+      <div class="photo-wrap">
+        <img src="abandla.png" alt="Aditya Bandla">
+      </div>
+      <div class="contact-links">
+        <a href="mailto:aditya@accruedcarbon.com" class="contact-link">aditya@accruedcarbon.com ↗</a>
+        <a href="https://www.linkedin.com/in/adibandla" class="contact-link" target="_blank">LinkedIn ↗</a>
+      </div>
+    </div>
+
+    <div class="bio-col">
+      <p class="lede">The soil carbon market is pricing permanence it cannot measure.</p>
+      <div class="bio-body">
+        <p>Carbon accounting treats soil as a static system. Models produce a number — but soil is alive, and whether that carbon stays or leaves depends on biology that standard measurement cannot see. That is where the risk is.</p>
+        <p>I'm a scientist and strategist with a PhD in Soil Ecology and ten years of applied research. I led the soil science programme for a <strong>landscape-scale peatland carbon project</strong>. My work spans regenerative agriculture, peatlands, and urban soils.</p>
+        <p>Standard carbon measurement tells you how much carbon is in the soil. I look at what is happening inside it — the biological processes that determine whether carbon stays or breaks down. That distinction is where permanence risk hides.</p>
+        <p>I bridge the gap between a <em>Nature</em> paper and a bankable credit.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- AUDIENCE -->
+  <div class="audience-section">
+    <div class="section-label">Problems I can help you solve</div>
+    <div class="audience-grid">
+
+      <div class="aud-cell">
+        <div class="aud-who">Producers &amp; Supply Chain</div>
+        <div class="aud-what">Design a <strong>regenerative portfolio that holds up to scrutiny</strong> — practice selection, sequestration strategy, and what to measure before your buyer runs their own assessment.</div>
+      </div>
+
+      <div class="aud-cell">
+        <div class="aud-who">Project Developers</div>
+        <div class="aud-what"><strong>Methodology review and protocol design</strong> — identify permanence risk and the biological signals your carbon measurement is missing before they become a liability at issuance.</div>
+      </div>
+
+      <div class="aud-cell">
+        <div class="aud-who">Service Providers</div>
+        <div class="aud-what">Scientific advisory and <strong>strategic input</strong> to make your offering credible — to clients, to regulators, and to the market.</div>
+      </div>
+
+      <div class="aud-cell">
+        <div class="aud-who">Ratings &amp; Intelligence</div>
+        <div class="aud-what">Independent frameworks for assessing permanence claims <strong>beyond the carbon number</strong> — drawing on biological signals from inside the soil that bulk sampling cannot reach.</div>
+      </div>
+
+      <div class="aud-cell">
+        <div class="aud-who">Investors &amp; Buyers</div>
+        <div class="aud-what"><strong>Technical due diligence</strong> on whether a credit portfolio carries the permanence risk it claims not to — before you commit capital.</div>
+      </div>
+
+      <div class="aud-cell">
+        <div class="aud-who">Sustainability Teams</div>
+        <div class="aud-what">Independent analysis and <strong>supply chain sequestration strategy</strong> that separates credible removals from compliance optics.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PUBLICATIONS FOLD -->
+  <div class="creds-section">
+    <div class="section-fold" id="fold-pubs">
+      <div class="section-fold-header" onclick="toggleFold('fold-pubs')">
+        <span class="section-fold-label">Publications</span>
+        <span class="section-fold-plus">+</span>
+      </div>
+      <div class="section-fold-body">
+        <div class="refs-grid">
+          <div class="ref-num">[1]</div><div class="ref-text">Bandla, A. et al. (2024). Elevated methane flux in a tropical peatland post-fire is linked to depth-dependent changes in peat microbiome assembly. <em>npj Biofilms and Microbiomes</em>, 10, 8. <a href="https://www.nature.com/articles/s41522-024-00478-9" target="_blank">nature.com</a></div>
+          <div class="ref-num">[2]</div><div class="ref-text">Bandla, A. et al. (2023). Genome-resolved carbon processing potential of tropical peat microbiomes from an oil palm plantation. <em>Scientific Data</em>, 10, 373. <a href="https://www.nature.com/articles/s41597-023-02267-z" target="_blank">nature.com</a></div>
+          <div class="ref-num">[3]</div><div class="ref-text">Taillardat, P., Bandla, A. et al. (2025). Methane and carbon dioxide production and emission pathways in the belowground and draining water bodies of a tropical peatland plantation forest. <em>Geophysical Research Letters</em>. <a href="https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2024GL112903" target="_blank">doi.org/10.1029/2024GL112903</a></div>
+          <div class="ref-num">[4]</div><div class="ref-text">Mukhopadhyay, S., Bandla, A. et al. (2026). Xenobiotic dynamics in mangroves and peatlands: microbial mechanisms for nature-based mitigation. <em>Journal of Hazardous Materials</em>. <a href="https://www.sciencedirect.com/science/article/abs/pii/S0304389426011271" target="_blank">sciencedirect.com</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREDENTIALS FOLD -->
+  <div class="creds-section">
+    <div class="section-fold" id="fold-creds">
+      <div class="section-fold-header" onclick="toggleFold('fold-creds')">
+        <span class="section-fold-label">Credentials &amp; Background</span>
+        <span class="section-fold-plus">+</span>
+      </div>
+      <div class="section-fold-body">
+        <div class="creds-grid">
+
+          <div>
+            <div class="cred-group-label">Education</div>
+            <div class="cred-item">PhD — Soil Ecology, National University of Singapore</div>
+            <div class="cred-item">BE — Agricultural Engineering, College of Engineering Guindy</div>
+          </div>
+
+          <div>
+            <div class="cred-group-label">Programme Leadership</div>
+            <div class="cred-item">Soil science &amp; microbiome package — landscape-scale peatland GHG programme</div>
+          </div>
+
+          <div>
+            <div class="cred-group-label">Domain Expertise</div>
+            <div class="cred-item">Regenerative agriculture</div>
+            <div class="cred-item">Peatlands</div>
+            <div class="cred-item">Urban soils</div>
+            <div class="cred-item">Nature-based solutions (NbS)</div>
+          </div>
+
+          <div>
+            <div class="cred-group-label">Methods</div>
+            <div class="cred-item">Field GHG measurement &amp; flux monitoring</div>
+            <div class="cred-item">Deep genomic sequencing — soil microbiome</div>
+            <div class="cred-item">Bioinformatics &amp; computational workflows</div>
+            <div class="cred-item">MRV protocol development &amp; review</div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div>
+    <div class="footer-col-label">Contact</div>
+    <div class="footer-col-val"><a href="mailto:aditya@accruedcarbon.com">aditya@accruedcarbon.com</a></div>
+  </div>
+  <div>
+    <div class="footer-col-label">Site</div>
+    <div class="footer-col-val"><a href="/">accruedcarbon.com</a></div>
+  </div>
+  <div>
+    <div class="footer-col-label">Status</div>
+    <div class="footer-col-val">Under active development — use with care.</div>
+  </div>
+</footer>
+
+<script>
+function toggleFold(id) {
+  const el = document.getElementById(id);
+  const isOpen = el.classList.toggle('open');
+  const plus = el.querySelector('.section-fold-plus');
+  if (plus) plus.textContent = isOpen ? '×' : '+';
+}
+function openSiteMenu() { document.getElementById('siteMenu').classList.add('open'); }
+function closeSiteMenu() { document.getElementById('siteMenu').classList.remove('open'); }
+function toggleTheme() {
+  const html = document.documentElement;
+  const dark = html.getAttribute('data-theme') !== 'dark';
+  html.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('themeNavBtn').textContent = dark ? 'Light' : 'Dark';
+}
+</script>
+</body>
+</html>
