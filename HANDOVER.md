@@ -1,5 +1,5 @@
 # Handover — Accrued Carbon Website
-*Date: 15 May 2026*
+*Date: 16 May 2026 (session 2 update)*
 
 ---
 
@@ -7,16 +7,78 @@
 
 **Accrued Carbon** (accruedcarbon.com) — a soil carbon science and MRV consultancy website. Built in plain HTML/CSS/JS. Hosted on GitHub Pages (repo: `adibandla/accruedcarbon.com`), custom domain via Spaceship registrar. DNS fully propagated. HTTPS enforced.
 
-Files live at: `/Users/abandla/Desktop/website/`
-- `index.html` — homepage
+Files live at: `/Users/abandla/Desktop/3_career/1_portfolio/` (git repo now initialised here, remote: `adibandla/accruedcarbon.com`)
+- `index.html` — homepage (updated to list the sampling economics tool)
 - `about.html` — about page (Aditya Bandla, PhD)
 - `soc-permanence-tool.html` — Carbon Permanence Tool (SOC pool dynamics, tonne-year)
 - `cue_soc_dashboard.html` — CUE × Soil Carbon Projects dashboard
+- `soc-sampling-roi.html` — **NEW: SOC Sampling Economics tool** (see below)
 - `favicon.svg` — hourglass icon, white strokes on transparent bg
 - `og-image.png` — 1200×630 social sharing card (generated via Python Pillow, 2x LANCZOS downscale)
 - `robots.txt` — allows all crawlers including facebookexternalhit
 
-Git workflow: push directly to `main`. No worktrees or PRs needed for this project.
+Git workflow: PRs via `gh`. CLI installed at `/Users/abandla/.local/bin/gh` (v2.92.0), PATH added to `~/.zshrc`, **authenticated** (account: adibandla, keyring). `gh auth setup-git` run — pushes work automatically. Use `gh pr create` for all changes going forward.
+
+**Open PR #13**: [Add SOC Sampling Economics tool](https://github.com/adibandla/accruedcarbon.com/pull/13) on branch `claude/adoring-proskuriakova-656fd9`. Needs merge to main.
+
+**Open PR #14**: [Add custom-input tab and anonymise dataset names in permanence tool](https://github.com/adibandla/accruedcarbon.com/pull/14) on branch `add-permanence-custom-tab`. Needs merge to main.
+
+**Uncommitted local changes** (separate PRs needed):
+- `about.html` — section label changed from "Where I can add value" to "Problems I can help you solve"
+- `soc-sampling-roi.html` — EONS formula display fix (δ added, matches PR #13 code fix)
+- `HANDOVER.md` — this file
+
+---
+
+## SOC Sampling Economics tool (`soc-sampling-roi.html`) — NEW
+
+Interactive decision-support tool exploring how field variability (CV) drives sampling cost and project viability in soil carbon projects. Two modes:
+
+### Carbon markets mode (VM0042)
+- Sweeps spatial CV 1–75% and shows profit at EONS across the full landscape
+- **Break-even CV**: maximum stock CV at which the project is still profitable at EONS
+- Combined CV = √(CV²_spatial + CV²_technical) per Even et al. 2025 (SOIL journal)
+- Sensitivity table: credit price × sample cost → break-even CV
+
+### Corporate removals mode (GHG Protocol LSR)
+- **Time-to-credibility framing**: how many monitoring years before cumulative SOC signal exceeds measurement uncertainty to a given confidence threshold
+- Three charts: claim uncertainty vs. years (n=10–100), years-to-credibility vs. n, years-to-credibility vs. spatial CV
+- Sensitivity table: sequestration rate × n → years to credibility (green ≤5yr, amber 5–10yr, red >10yr)
+- Key insight: σ/annual_rate is the fundamental driver; three levers are more samples, lower-CV field selection, longer monitoring horizon
+
+### Key math (verified, stress-tested)
+VM0042 Eq. 65 uncertainty deduction:
+```
+unc% = (σ·f / √n / δ) × 100 × M    where M=0.4307, f=√2 (ind) or 1 (paired)
+```
+
+EONS (economic optimum — **note: δ cancels from uncertainty cost term**):
+```
+EONS = [G·p·M·σ·f / (2c·δ)]^(2/3)  =  [area×(44/12)×p×M×σ×f / (2c)]^(2/3)
+```
+
+Break-even CV (analytical, setting profit-at-EONS = 0):
+```
+σ_be = 2δ / (M·f·3√3) × √(G·p/c)
+CV_be = σ_be / mean_SOC × 100%
+```
+
+Profit at EONS (analytical):
+```
+Profit = G·p - 3·c·EONS
+```
+
+**Bug history**: An earlier version omitted δ from EONS (used G·p instead of G·p/δ) and from break-even (used 1 instead of δ). This caused EONS to be overestimated by δ^(2/3) ≈ 1.84× at defaults (δ=2.5), and break-even CV to be underestimated by factor δ. Both fixed in PR #13.
+
+**Formula verification status**: Seqana's EONS calculator (seqana.com/resources/eons-calculator) is a live tool but does not publicly disclose its formula — verification against their output is pending. The math derivation from first principles (cancellation of δ from the uncertainty cost term) is solid.
+
+Removals math (`relUnc`, `yearsToCred`, `nToDetect`) verified correct — no bugs found.
+
+### Implementation details
+- Chart.js 4.4.1 with SRI hash, dark/light theme via `data-theme` on `<html>`
+- Beasley-Springer-Moro inverse normal approximation for CI calculations
+- Fully self-contained single HTML file (~1220 lines)
+- Three Chart.js instances reused across modes (profitCVChart, beChart, eonsCVChart)
 
 ---
 
@@ -143,13 +205,30 @@ The user agreed the dashboard should become a **demonstration of the white space
 
 ## Pending items
 
-- **CUE dashboard reframe** — main outstanding science/content task (see above)
-- **Cloudflare Analytics** — user chose Cloudflare Web Analytics (free, bot-filtering). Script not yet inserted. Get the script tag from the Cloudflare dashboard and add before `</body>` on all pages.
+- **Merge PR #13 and #14** — both need merge to main and GitHub Pages redeploy
+- **CUE dashboard reframe** — highest priority science/content task (see above)
+- **Writing section** — critical for career positioning (Science Lead / CSO / Director of Research targets). At least one 600–800 word opinionated analytical piece. Suggested topics: why the CUE → MAOC pathway breaks down in managed systems and what it means for VM0042, or the permanence overstatement story. Tools provide all the material; writing makes the argument explicit.
+- **Cloudflare Analytics** — script not yet inserted. Get tag from Cloudflare dashboard, add before `</body>` on all pages.
 - **Work and Writing pages** — not yet built, nav links are `href="#"`
 - **GitHub and Terms/Privacy footer links** — still `href="#"`
 - **No 404 page** — GitHub Pages serves a default; a custom `404.html` would be on-brand
 - **Copyright year** — footer shows "© 2025", should be 2026
 - **Calendly link** — `https://calendly.com/accruedcarbon/lets-talk-carbon` (on homepage)
+- **Commit remaining local changes** — `about.html` label + `soc-sampling-roi.html` formula display (see above)
+
+---
+
+## Science context from session 2
+
+### RothC / permanence tool discussion
+RothC's BIO pool is a model artefact, not independently validated against fumigation-extraction MBC. Pool-level (BIO, HUM) predictions are validated mainly at Rothamsted long-term plots; validation in managed agricultural systems is weak. Carbon age from RothC is inferred from pool turnover rates, not ¹⁴C — systematically underestimates old C proportion. RothC is used for forward permanence projections in VM0042 but not for pool-stability permanence arguments.
+
+The permanence tool (`soc-permanence-tool.html`) is unaffected by RothC issues at the model level — it takes claimed sequestration as input and applies POC/MAOC MRT discounting. The blind spots are: (1) the claimed seq inputs from LCAs often *are* derived from RothC-class models, carrying unacknowledged pool-level uncertainty; (2) the POC/MAOC split from Prairie et al. 2023 is an average — actual split depends on CUE dynamics and mineral capacity in ways the tool doesn't represent. The Breure 2025 saturation slider captures part of this. The tool is honest within its framework; the gap is upstream (input quality) and in the split imputation.
+
+**First Milk data note**: the Dairy Producer seq figure (1.08 kg CO₂e/litre) is from measure-remeasure, not a model. This removes RothC uncertainty from the total seq input. The POC/MAOC split is still imputed from Prairie et al., not measured via fractionation.
+
+### Portfolio / career positioning
+Aditya is targeting Science Lead, CSO, Director of Research/Translation roles — private sector (integrity orgs, MRV companies, ag-carbon startups), not academic. Peer review publication record is weak; this is not a hard filter for these roles. Key differentiator is: reads frontier literature critically, translates science to implications, builds tools non-scientists can use. Writing section is the most important gap — opinionated analytical pieces (not tech docs) are the primary credibility signal for senior science leadership roles. The tools are strong but signal "doing" more than "leading"; writing fills the "can they argue a position?" gap.
 
 ---
 
