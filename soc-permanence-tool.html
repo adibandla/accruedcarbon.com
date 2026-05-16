@@ -251,6 +251,10 @@ hr{border:none;border-top:1px solid var(--border);margin:32px 0;}
 .section-fold-header:hover .section-fold-plus{color:var(--text2);}
 .section-fold-body{display:none;padding-bottom:40px;}
 .section-fold.open .section-fold-body{display:block;}
+.num-input{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:14px;padding:8px 10px;width:100%;outline:none;-moz-appearance:textfield;}
+.num-input:focus{border-color:var(--border2);}
+.num-input::-webkit-outer-spin-button,.num-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.custom-field-label{font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
 </style>
 </head>
 <body>
@@ -373,6 +377,33 @@ hr{border:none;border-top:1px solid var(--border);margin:32px 0;}
       <div class="tab-row" style="width:auto;">
         <button class="tab-btn active-sys" onclick="switchSys('fm',this)">Dairy Producer</button>
         <button class="tab-btn" onclick="switchSys('wop',this)">Meat Producer</button>
+        <button class="tab-btn" onclick="switchSys('custom',this)">Your Project</button>
+      </div>
+    </div>
+
+    <!-- CUSTOM INPUTS -->
+    <div id="custom-inputs" style="display:none;border:1px solid var(--border);padding:20px 24px;margin-bottom:32px;">
+      <div style="font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:16px;">Your project figures</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 20px;margin-bottom:16px;">
+        <div>
+          <div class="custom-field-label">Gross emissions</div>
+          <input type="number" class="num-input" id="custom-gross" min="0" step="any" placeholder="0.00" oninput="updateCustomSys()">
+        </div>
+        <div>
+          <div class="custom-field-label">Claimed sequestration</div>
+          <input type="number" class="num-input" id="custom-seq" min="0" step="any" placeholder="0.00" oninput="updateCustomSys()">
+        </div>
+        <div>
+          <div class="custom-field-label">Unit label</div>
+          <input type="text" class="num-input" id="custom-unit" placeholder="tCO2e / ha / yr" oninput="updateCustomSys()">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:12px 20px;align-items:end;">
+        <div>
+          <div class="custom-field-label">Conventional benchmark <span style="text-transform:none;letter-spacing:0;opacity:.5;">(optional)</span></div>
+          <input type="number" class="num-input" id="custom-conv" min="0" step="any" placeholder="0.00" oninput="updateCustomSys()">
+        </div>
+        <div style="font-size:13px;color:var(--text3);line-height:1.6;padding-bottom:2px;">Enter values in any consistent unit. Sequestration is entered as a positive number — the tool computes the tonne-tonne claimed net as gross minus sequestration.</div>
       </div>
     </div>
 
@@ -614,13 +645,13 @@ hr{border:none;border-top:1px solid var(--border);margin:32px 0;}
     <!-- WORKED EXAMPLE -->
     <div class="section-fold" id="fold-example">
       <div class="section-fold-header" onclick="toggleFold('fold-example')">
-        <span class="section-fold-label">Worked example — First Milk dairy</span>
+        <span class="section-fold-label">Worked example — Dairy Producer</span>
         <span class="section-fold-plus">+</span>
       </div>
       <div class="section-fold-body">
 
       <div style="font-size:.82rem;color:var(--text2);line-height:1.75;margin-bottom:1.25rem;max-width:720px;">
-        <p>AgriCarbon and 8point9 published a life cycle assessment of First Milk dairy showing a net emission of <strong>+0.07 kg CO&#x2082;e per litre of milk</strong> — a figure positioned as near-net-zero dairy. This is the tonne-tonne number: gross emissions minus the full claimed sequestration, with no adjustment for how long that sequestered carbon will actually stay in the soil. The worked example below applies this tool&#x2019;s three accounting frameworks to those published figures using central parameter assumptions. The aim is not to dispute the underlying measurements, but to show what the same number looks like under different accounting rules.</p>
+        <p>AgriCarbon and 8point9 published a life cycle assessment of a Dairy Producer showing a net emission of <strong>+0.07 kg CO&#x2082;e per litre of milk</strong> — a figure positioned as near-net-zero dairy. This is the tonne-tonne number: gross emissions minus the full claimed sequestration, with no adjustment for how long that sequestered carbon will actually stay in the soil. The worked example below applies this tool&#x2019;s three accounting frameworks to those published figures using central parameter assumptions. The aim is not to dispute the underlying measurements, but to show what the same number looks like under different accounting rules.</p>
       </div>
 
       <div style="font-family:var(--mono);font-size:.63rem;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.5rem;">Step 1 &#x2014; Published inputs (taken at face value)</div>
@@ -631,9 +662,9 @@ hr{border:none;border-top:1px solid var(--border);margin:32px 0;}
           <th style="text-align:left;padding:7px 12px;font-family:var(--mono);font-size:.65rem;font-weight:500;border:1px solid var(--border);">Source</th>
         </tr></thead>
         <tbody>
-          <tr><td style="padding:6px 12px;border:1px solid var(--border);">Gross emissions</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--red);">+1.15 kg CO&#x2082;e / litre</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">First Milk LCA [9]</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">Gross emissions</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--red);">+1.15 kg CO&#x2082;e / litre</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">Dairy Producer [9]</td></tr>
           <tr style="background:var(--border);opacity:.3;height:1px;"><td colspan="3"></td></tr>
-          <tr><td style="padding:6px 12px;border:1px solid var(--border);">Claimed sequestration</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--green);">&#x2212;1.08 kg CO&#x2082;e / litre</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">First Milk LCA [9]</td></tr>
+          <tr><td style="padding:6px 12px;border:1px solid var(--border);">Claimed sequestration</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--green);">&#x2212;1.08 kg CO&#x2082;e / litre</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">Dairy Producer [9]</td></tr>
           <tr><td style="padding:6px 12px;border:1px solid var(--border);">Claimed net (tonne-tonne)</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);font-weight:500;">+0.07 kg CO&#x2082;e / litre</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">gross &#x2212; seq</td></tr>
           <tr><td style="padding:6px 12px;border:1px solid var(--border);">Conventional dairy</td><td style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-family:var(--mono);color:var(--red);">+1.15 kg CO&#x2082;e / litre</td><td style="padding:6px 12px;border:1px solid var(--border);color:var(--text3);">industry average</td></tr>
         </tbody>
@@ -732,7 +763,7 @@ hr{border:none;border-top:1px solid var(--border);margin:32px 0;}
       </table>
 
       <div style="border-left:2px solid var(--lsr);padding:12px 16px;font-size:.78rem;color:var(--text2);line-height:1.75;margin-bottom:1.5rem;">
-        <strong style="color:var(--text);">What the numbers say.</strong> The sequestration is real and the management improvement is substantial &#x2014; First Milk dairy performs 37&#x2013;63% below conventional dairy across all scenarios. The near-net-zero claim, however, depends on crediting the full claimed sequestration with no permanence adjustment. Under every framework in this tool the net is positive and well above +0.07. The gap between +0.07 (claimed) and +0.43 (CAR central) is not a measurement dispute &#x2014; it is an accounting choice about how long the stored carbon is assumed to persist.
+        <strong style="color:var(--text);">What the numbers say.</strong> The sequestration is real and the management improvement is substantial &#x2014; the Dairy Producer performs 37&#x2013;63% below conventional dairy across all scenarios. The near-net-zero claim, however, depends on crediting the full claimed sequestration with no permanence adjustment. Under every framework in this tool the net is positive and well above +0.07. The gap between +0.07 (claimed) and +0.43 (CAR central) is not a measurement dispute &#x2014; it is an accounting choice about how long the stored carbon is assumed to persist.
       </div>
       </div>
     </div>
@@ -787,8 +818,9 @@ hr{border:none;border-top:1px solid var(--border);margin:32px 0;}
 
 <script>
 const SYSTEMS = {
-  wop: { gross:35.2, seq:39.0, claimed:-3.50, conv:33.0, defMaoc:63, unit:'kg CO2e / kg beef', name:'WOP beef' },
-  fm:  { gross:1.15, seq:1.08,  claimed:0.07,  conv:1.15, defMaoc:63, unit:'kg CO2e / litre milk', name:'First Milk dairy' }
+  wop:    { gross:35.2, seq:39.0, claimed:-3.50, conv:33.0,  defMaoc:63, unit:'kg CO2e / kg beef',      name:'Meat Producer' },
+  fm:     { gross:1.15, seq:1.08,  claimed:0.07,  conv:1.15,  defMaoc:63, unit:'kg CO2e / litre milk',    name:'Dairy Producer' },
+  custom: { gross:0,    seq:0,     claimed:0,     conv:null,  defMaoc:63, unit:'tCO2e / ha / yr',         name:'Your Project' }
 };
 
 let curSys = 'fm';
@@ -876,9 +908,26 @@ function switchSys(key, btn) {
   curSys = key;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-sys'));
   btn.classList.add('active-sys');
-  const sys = SYSTEMS[key];
-  document.getElementById('sl-maoc').value = sys.defMaoc;
-  onMaoc(sys.defMaoc);
+  document.getElementById('custom-inputs').style.display = key === 'custom' ? '' : 'none';
+  if (key !== 'custom') {
+    const sys = SYSTEMS[key];
+    document.getElementById('sl-maoc').value = sys.defMaoc;
+    onMaoc(sys.defMaoc);
+  }
+  update();
+}
+
+function updateCustomSys() {
+  const gross = parseFloat(document.getElementById('custom-gross').value) || 0;
+  const seq   = parseFloat(document.getElementById('custom-seq').value)   || 0;
+  const unit  = document.getElementById('custom-unit').value.trim() || 'tCO2e / ha / yr';
+  const convRaw = document.getElementById('custom-conv').value;
+  const conv  = convRaw !== '' ? (parseFloat(convRaw) || null) : null;
+  SYSTEMS.custom.gross   = gross;
+  SYSTEMS.custom.seq     = seq;
+  SYSTEMS.custom.claimed = parseFloat((gross - seq).toFixed(6));
+  SYSTEMS.custom.unit    = unit;
+  SYSTEMS.custom.conv    = conv;
   update();
 }
 
@@ -1084,40 +1133,55 @@ function update() {
   const displayNet = curMeth === 'lsr'
     ? (lsrView === 'b' ? lsrBNet : lsrANet)
     : netR;
-  const over = Math.abs(displayNet - sys.claimed) / Math.abs(sys.claimed) * 100;
-  const vsConv = (sys.conv - displayNet) / sys.conv * 100;
+
+  const customEmpty = curSys === 'custom' && sys.gross === 0 && sys.seq === 0;
 
   const tyEl = document.getElementById('ty-net');
-  tyEl.textContent = fmt(displayNet);
+  tyEl.textContent = customEmpty ? '—' : fmt(displayNet);
   tyEl.className = 'm-val ' + (displayNet <= 0 ? 'm-neg' : 'm-pos');
 
   if (curMeth === 'lsr' && lsrView === 'both') {
     const lsrBEl = document.getElementById('lsr-b-net');
-    lsrBEl.textContent = fmt(lsrBNet);
+    lsrBEl.textContent = customEmpty ? '—' : fmt(lsrBNet);
     lsrBEl.className = 'm-val ' + (lsrBNet <= 0 ? 'm-neg' : 'm-pos');
     document.getElementById('lsr-b-unit').textContent = sys.unit;
   }
 
   const ttEl = document.getElementById('tt-net');
-  ttEl.textContent = fmt(sys.claimed);
+  ttEl.textContent = customEmpty ? '—' : fmt(sys.claimed);
   ttEl.className = 'm-val ' + (sys.claimed <= 0 ? 'm-neg' : 'm-pos');
 
   document.getElementById('ty-unit').textContent = sys.unit;
   document.getElementById('tt-unit').textContent = sys.unit;
-  document.getElementById('overstate').textContent = '↑ ' + Math.round(over) + '%';
-  document.getElementById('overstate-fill').style.width = Math.min(over / 10, 100) + '%';
+
+  if (customEmpty || Math.abs(sys.claimed) < 1e-9) {
+    document.getElementById('overstate').textContent = '—';
+    document.getElementById('overstate-fill').style.width = '0%';
+  } else {
+    const over = Math.abs(displayNet - sys.claimed) / Math.abs(sys.claimed) * 100;
+    document.getElementById('overstate').textContent = '↑ ' + Math.round(over) + '%';
+    document.getElementById('overstate-fill').style.width = Math.min(over / 10, 100) + '%';
+  }
 
   const vsEl = document.getElementById('vs-conv');
-  vsEl.className = 'm-val ' + (vsConv > 0 ? 'm-neg' : 'm-pos');
-  document.getElementById('vs-conv-arrow').textContent = vsConv > 0 ? '↓' : '↑';
-  document.getElementById('vs-conv-num').textContent = Math.abs(vsConv).toFixed(1) + '%';
-  document.getElementById('conv-ref').textContent = 'vs ' + sys.conv + ' conventional';
+  if (!customEmpty && sys.conv != null && sys.conv !== 0) {
+    const vsConv = (sys.conv - displayNet) / sys.conv * 100;
+    vsEl.className = 'm-val ' + (vsConv > 0 ? 'm-neg' : 'm-pos');
+    document.getElementById('vs-conv-arrow').textContent = vsConv > 0 ? '↓' : '↑';
+    document.getElementById('vs-conv-num').textContent = Math.abs(vsConv).toFixed(1) + '%';
+    document.getElementById('conv-ref').textContent = 'vs ' + sys.conv + ' conventional';
+  } else {
+    vsEl.className = 'm-val m-neu';
+    document.getElementById('vs-conv-arrow').textContent = '—';
+    document.getElementById('vs-conv-num').textContent = '';
+    document.getElementById('conv-ref').textContent = sys.conv == null ? 'no benchmark set' : '';
+  }
 
-  document.getElementById('ref-claimed').textContent = fmt(sys.claimed);
-  document.getElementById('ref-conv').textContent = fmt(sys.conv);
-  document.getElementById('ref-gross').textContent = fmt(sys.gross);
-  document.getElementById('ref-seq').textContent = fmt(-sys.seq);
-  document.getElementById('ref-credit').textContent = fmt(-credit);
+  document.getElementById('ref-claimed').textContent = customEmpty ? '—' : fmt(sys.claimed);
+  document.getElementById('ref-conv').textContent = sys.conv != null ? fmt(sys.conv) : '—';
+  document.getElementById('ref-gross').textContent = customEmpty ? '—' : fmt(sys.gross);
+  document.getElementById('ref-seq').textContent = customEmpty ? '—' : fmt(-sys.seq);
+  document.getElementById('ref-credit').textContent = customEmpty ? '—' : fmt(-credit);
 
   let methLabel, noteDetail;
   if (curMeth === 'car') {
