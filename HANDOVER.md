@@ -1,5 +1,5 @@
 # Handover — Accrued Carbon Website
-*Date: 16 May 2026 (session 2 update)*
+*Date: 15 May 2026 (session 3 update)*
 
 ---
 
@@ -19,14 +19,15 @@ Files live at: `/Users/abandla/Desktop/3_career/1_portfolio/` (git repo now init
 
 Git workflow: PRs via `gh`. CLI installed at `/Users/abandla/.local/bin/gh` (v2.92.0), PATH added to `~/.zshrc`, **authenticated** (account: adibandla, keyring). `gh auth setup-git` run — pushes work automatically. Use `gh pr create` for all changes going forward.
 
-**Open PR #13**: [Add SOC Sampling Economics tool](https://github.com/adibandla/accruedcarbon.com/pull/13) on branch `claude/adoring-proskuriakova-656fd9`. Needs merge to main.
+**All PRs merged as of session 3.** PRs #13, #14, #15 all merged to main.
 
-**Open PR #14**: [Add custom-input tab and anonymise dataset names in permanence tool](https://github.com/adibandla/accruedcarbon.com/pull/14) on branch `add-permanence-custom-tab`. Needs merge to main.
+**PR #15** (session 3): [Strengthen leadership framing and trim publications on about page](https://github.com/adibandla/accruedcarbon.com/pull/15) — merged.
 
-**Uncommitted local changes** (separate PRs needed):
-- `about.html` — section label changed from "Where I can add value" to "Problems I can help you solve"
+**Uncommitted local changes** (need commit + PR):
 - `soc-sampling-roi.html` — EONS formula display fix (δ added, matches PR #13 code fix)
 - `HANDOVER.md` — this file
+
+**Workflow note (session 3):** Auto-merge is now the default — edit → commit → push → `gh pr create` → `gh pr merge --merge` without asking. Use `/Users/abandla/.local/bin/gh` (not bare `gh`).
 
 ---
 
@@ -205,16 +206,14 @@ The user agreed the dashboard should become a **demonstration of the white space
 
 ## Pending items
 
-- **Merge PR #13 and #14** — both need merge to main and GitHub Pages redeploy
-- **CUE dashboard reframe** — highest priority science/content task (see above)
-- **Writing section** — critical for career positioning (Science Lead / CSO / Director of Research targets). At least one 600–800 word opinionated analytical piece. Suggested topics: why the CUE → MAOC pathway breaks down in managed systems and what it means for VM0042, or the permanence overstatement story. Tools provide all the material; writing makes the argument explicit.
-- **Cloudflare Analytics** — script not yet inserted. Get tag from Cloudflare dashboard, add before `</body>` on all pages.
+- **Writing section** — single highest-priority task for career positioning. One 600–800 word opinionated analytical piece — a position, not an explainer. Suggested angle: why the CUE → MAOC pathway breaks down in managed systems and what it means for methodology integrity, or the permanence overstatement story. This is what separates "senior scientist" from "science lead" in hiring manager perception.
+- **CUE dashboard reframe** — second priority science task (see Option C framing below)
+- **Commit `soc-sampling-roi.html`** — EONS formula display fix (δ added), uncommitted
+- **Cloudflare Analytics** — script not yet inserted on any page
 - **Work and Writing pages** — not yet built, nav links are `href="#"`
 - **GitHub and Terms/Privacy footer links** — still `href="#"`
-- **No 404 page** — GitHub Pages serves a default; a custom `404.html` would be on-brand
+- **No 404 page** — GitHub Pages serves a default
 - **Copyright year** — footer shows "© 2025", should be 2026
-- **Calendly link** — `https://calendly.com/accruedcarbon/lets-talk-carbon` (on homepage)
-- **Commit remaining local changes** — `about.html` label + `soc-sampling-roi.html` formula display (see above)
 
 ---
 
@@ -227,8 +226,15 @@ The permanence tool (`soc-permanence-tool.html`) is unaffected by RothC issues a
 
 **First Milk data note**: the Dairy Producer seq figure (1.08 kg CO₂e/litre) is from measure-remeasure, not a model. This removes RothC uncertainty from the total seq input. The POC/MAOC split is still imputed from Prairie et al., not measured via fractionation.
 
-### Portfolio / career positioning
-Aditya is targeting Science Lead, CSO, Director of Research/Translation roles — private sector (integrity orgs, MRV companies, ag-carbon startups), not academic. Peer review publication record is weak; this is not a hard filter for these roles. Key differentiator is: reads frontier literature critically, translates science to implications, builds tools non-scientists can use. Writing section is the most important gap — opinionated analytical pieces (not tech docs) are the primary credibility signal for senior science leadership roles. The tools are strong but signal "doing" more than "leading"; writing fills the "can they argue a position?" gap.
+### Portfolio / career positioning (updated session 3)
+
+**Role target:** Head of Science / Science Director / Science Lead — anywhere the role involves reading frontier science, taking positions, translating across levels (deep scientists → cross-functional → C-suite), and prototyping hands-on with AI. Not rating agencies as a priority. Priority targets: F&B / large food corporates (Danone, Unilever, General Mills, Cargill, Nestlé), project developers with science ambitions (Indigo, Regen Network, South Pole, Anew, Soil Capital), carbon intelligence / data platforms (Pachama and similar), service providers (EY, Deloitte, Systemiq, Quantis).
+
+**Publication record:** 4 papers total, trimmed to 2 on the website (npj Biofilms and Microbiomes 2024 first-author; GRL 2025 co-author). Honest framing: "I didn't close and publish as much as I should have" — own it in one sentence, redirect to portfolio. Do not over-explain.
+
+**Team leadership:** 8 years, progressively growing teams (up to 7–8 scientists and field staff), landscape-scale peatland GHG programme, Southeast Asia. Functional leadership — not formal org chart. Directed field campaigns, developed methodology (GHG flux, microbiome, MRV protocol), made scientific decisions, owned outputs. In interviews: distinguish functional from line management confidently, lead with the progressive growth signal.
+
+**Writing section is the single most important gap.** Tools signal "doing." Writing signals "leading and arguing a position." One strong opinionated piece closes this.
 
 ---
 
