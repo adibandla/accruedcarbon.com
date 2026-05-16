@@ -1,5 +1,5 @@
 # Handover — Accrued Carbon Website
-*Date: 15 May 2026*
+*Date: 15 May 2026 (updated)*
 
 ---
 
@@ -8,15 +8,70 @@
 **Accrued Carbon** (accruedcarbon.com) — a soil carbon science and MRV consultancy website. Built in plain HTML/CSS/JS. Hosted on GitHub Pages (repo: `adibandla/accruedcarbon.com`), custom domain via Spaceship registrar. DNS fully propagated. HTTPS enforced.
 
 Files live at: `/Users/abandla/Desktop/website/`
-- `index.html` — homepage
+- `index.html` — homepage (updated to list the sampling economics tool)
 - `about.html` — about page (Aditya Bandla, PhD)
 - `soc-permanence-tool.html` — Carbon Permanence Tool (SOC pool dynamics, tonne-year)
 - `cue_soc_dashboard.html` — CUE × Soil Carbon Projects dashboard
+- `soc-sampling-roi.html` — **NEW: SOC Sampling Economics tool** (see below)
 - `favicon.svg` — hourglass icon, white strokes on transparent bg
 - `og-image.png` — 1200×630 social sharing card (generated via Python Pillow, 2x LANCZOS downscale)
 - `robots.txt` — allows all crawlers including facebookexternalhit
 
 Git workflow: push directly to `main`. No worktrees or PRs needed for this project.
+
+**Open PR**: [#13 — Add SOC Sampling Economics tool](https://github.com/adibandla/accruedcarbon.com/pull/13) on branch `claude/adoring-proskuriakova-656fd9`. Needs merge to main and GitHub Pages redeploy.
+
+---
+
+## SOC Sampling Economics tool (`soc-sampling-roi.html`) — NEW
+
+Interactive decision-support tool exploring how field variability (CV) drives sampling cost and project viability in soil carbon projects. Two modes:
+
+### Carbon markets mode (VM0042)
+- Sweeps spatial CV 1–75% and shows profit at EONS across the full landscape
+- **Break-even CV**: maximum stock CV at which the project is still profitable at EONS
+- Combined CV = √(CV²_spatial + CV²_technical) per Even et al. 2025 (SOIL journal)
+- Sensitivity table: credit price × sample cost → break-even CV
+
+### Corporate removals mode (GHG Protocol LSR)
+- **Time-to-credibility framing**: how many monitoring years before cumulative SOC signal exceeds measurement uncertainty to a given confidence threshold
+- Three charts: claim uncertainty vs. years (n=10–100), years-to-credibility vs. n, years-to-credibility vs. spatial CV
+- Sensitivity table: sequestration rate × n → years to credibility (green ≤5yr, amber 5–10yr, red >10yr)
+- Key insight: σ/annual_rate is the fundamental driver; three levers are more samples, lower-CV field selection, longer monitoring horizon
+
+### Key math (verified, stress-tested)
+VM0042 Eq. 65 uncertainty deduction:
+```
+unc% = (σ·f / √n / δ) × 100 × M    where M=0.4307, f=√2 (ind) or 1 (paired)
+```
+
+EONS (economic optimum — **note: δ cancels from uncertainty cost term**):
+```
+EONS = [G·p·M·σ·f / (2c·δ)]^(2/3)  =  [area×(44/12)×p×M×σ×f / (2c)]^(2/3)
+```
+
+Break-even CV (analytical, setting profit-at-EONS = 0):
+```
+σ_be = 2δ / (M·f·3√3) × √(G·p/c)
+CV_be = σ_be / mean_SOC × 100%
+```
+
+Profit at EONS (analytical):
+```
+Profit = G·p - 3·c·EONS
+```
+
+**Bug history**: An earlier version omitted δ from EONS (used G·p instead of G·p/δ) and from break-even (used 1 instead of δ). This caused EONS to be overestimated by δ^(2/3) ≈ 1.84× at defaults (δ=2.5), and break-even CV to be underestimated by factor δ. Both fixed in PR #13.
+
+**Formula verification status**: Seqana's EONS calculator (seqana.com/resources/eons-calculator) is a live tool but does not publicly disclose its formula — verification against their output is pending. The math derivation from first principles (cancellation of δ from the uncertainty cost term) is solid.
+
+Removals math (`relUnc`, `yearsToCred`, `nToDetect`) verified correct — no bugs found.
+
+### Implementation details
+- Chart.js 4.4.1 with SRI hash, dark/light theme via `data-theme` on `<html>`
+- Beasley-Springer-Moro inverse normal approximation for CI calculations
+- Fully self-contained single HTML file (~1220 lines)
+- Three Chart.js instances reused across modes (profitCVChart, beChart, eonsCVChart)
 
 ---
 
