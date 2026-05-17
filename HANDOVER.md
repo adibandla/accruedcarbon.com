@@ -1,5 +1,5 @@
 # Handover — Accrued Carbon Website
-*Date: 15 May 2026 (session 3 update)*
+*Date: 17 May 2026 (session 4 update)*
 
 ---
 
@@ -13,7 +13,7 @@ Files live at: `/Users/abandla/Desktop/3_career/1_portfolio/` (git repo now init
 - `soc-permanence-tool.html` — Carbon Permanence Tool (SOC pool dynamics, tonne-year)
 - `cue_soc_dashboard.html` — CUE × Soil Carbon Projects dashboard
 - `soc-sampling-roi.html` — **NEW: SOC Sampling Economics tool** (see below)
-- `favicon.svg` — hourglass icon, white strokes on transparent bg
+- `favicon.svg` — hourglass icon, white strokes on dark (#111) square background (fixed May 17 — was transparent, appeared as globe in Google)
 - `og-image.png` — 1200×630 social sharing card (generated via Python Pillow, 2x LANCZOS downscale)
 - `robots.txt` — allows all crawlers including facebookexternalhit
 
@@ -23,9 +23,10 @@ Git workflow: PRs via `gh`. CLI installed at `/Users/abandla/.local/bin/gh` (v2.
 
 **PR #15** (session 3): [Strengthen leadership framing and trim publications on about page](https://github.com/adibandla/accruedcarbon.com/pull/15) — merged.
 
-**Uncommitted local changes** (need commit + PR):
-- `soc-sampling-roi.html` — EONS formula display fix (δ added, matches PR #13 code fix)
-- `HANDOVER.md` — this file
+**Session 4 changes** (pushed directly to main, commit `0d9947b`):
+- `favicon.svg` — fixed: added dark background so logo is visible in browser tabs and Google Search
+- `index.html` — updated meta description (was 95 chars, Google was overriding with tool text; now ~200 chars, specific to soil carbon MRV consulting)
+- Google re-indexing: request via Search Console → URL Inspection → Request Indexing
 
 **Workflow note (session 3):** Auto-merge is now the default — edit → commit → push → `gh pr create` → `gh pr merge --merge` without asking. Use `/Users/abandla/.local/bin/gh` (not bare `gh`).
 
